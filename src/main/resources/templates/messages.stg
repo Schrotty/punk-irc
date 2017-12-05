@@ -1,0 +1,4 @@
+startUp(version) ::= "Starting punkIRC v<version>..."
+
+helloWorld(username) ::= "Hello <username>! How are you doing?!"
+test(username, password) ::= "Hello <username>, please enter your <password>!"
