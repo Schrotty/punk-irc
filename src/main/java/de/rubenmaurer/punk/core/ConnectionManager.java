@@ -9,18 +9,19 @@ import akka.io.Tcp.CommandFailed;
 import akka.io.Tcp.Connected;
 import akka.io.TcpMessage;
 import de.rubenmaurer.punk.core.handler.ConnectionHandler;
+import de.rubenmaurer.punk.core.reporter.Report;
 import de.rubenmaurer.punk.util.Settings;
 
 import java.net.InetSocketAddress;
 
 /**
- * The TCP Server for handling incoming connections.
+ * The TCP ConnectionManager for handling incoming connections.
  *
  * @author Ruben Maurer
  * @version 1.0
  * @since 1.0
  */
-public class Server extends AbstractActor {
+public class ConnectionManager extends AbstractActor {
 
     /**
      * The used TCP manager.
@@ -32,7 +33,7 @@ public class Server extends AbstractActor {
      *
      * @param manager the used TCP manager
      */
-    public Server(ActorRef manager) {
+    public ConnectionManager(ActorRef manager) {
         this.manager = manager;
     }
 
@@ -43,7 +44,7 @@ public class Server extends AbstractActor {
      * @return the props
      */
     public static Props props(ActorRef manager) {
-        return Props.create(Server.class, manager);
+        return Props.create(ConnectionManager.class, manager);
     }
 
     /**
@@ -54,6 +55,8 @@ public class Server extends AbstractActor {
         final ActorRef tcp = Tcp.get(getContext().getSystem()).manager();
         tcp.tell(TcpMessage.bind(getSelf(),
                 new InetSocketAddress("localhost", Settings.port()), 100), getSelf());
+
+        Guardian.reporter().tell(Report.create(Report.Type.ONLINE), self());
     }
 
     /**

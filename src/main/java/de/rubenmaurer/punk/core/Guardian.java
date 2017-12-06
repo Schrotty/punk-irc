@@ -3,11 +3,9 @@ package de.rubenmaurer.punk.core;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import akka.io.Tcp;
 import de.rubenmaurer.punk.Punk;
 import de.rubenmaurer.punk.core.reporter.Report;
 import de.rubenmaurer.punk.core.reporter.Reporter;
-import de.rubenmaurer.punk.util.Settings;
 import de.rubenmaurer.punk.util.Template;
 
 /**
@@ -22,7 +20,11 @@ public class Guardian extends AbstractActor {
     /**
      * The reporter for system messages.
      */
-    private ActorRef reporter;
+    private static ActorRef reporter;
+
+    public static ActorRef reporter() {
+        return reporter;
+    }
 
     /**
      * Get the props needed for a new actor.
@@ -44,9 +46,8 @@ public class Guardian extends AbstractActor {
                 Punk.class.getPackage().getImplementationVersion())), self());
         reporter.tell(Report.create(Report.Type.NONE, ""), self());
 
-        //reporter.tell(Report.create(Report.Type.INFO, Settings.getInstance().get("defaultPort")), self());
-        System.out.println(Settings.getInstance().get("defaultPort"));
-        context().actorOf(Server.props(Tcp.get(getContext().getSystem()).manager()));
+        reporter().tell(Report.create(Report.Type.ONLINE), self());
+        context().actorOf(PunkServer.props(), "punk-irc-server");
     }
 
     /**

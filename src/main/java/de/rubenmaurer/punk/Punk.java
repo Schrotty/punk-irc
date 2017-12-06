@@ -5,7 +5,7 @@ import de.rubenmaurer.punk.core.Guardian;
 import org.fusesource.jansi.AnsiConsole;
 
 /**
- * PunkIRC Server.
+ * PunkIRC ConnectionManager.
  *
  * @author Ruben Maurer
  * @version 1.0
@@ -21,6 +21,6 @@ public class Punk {
     public static void main(String args[]) {
         AnsiConsole.systemInstall();
 
-        ActorSystem.apply("punk-irc").actorOf(Guardian.props());
+        ActorSystem.apply("punk-irc").actorOf(Guardian.props(), "guardian");
     }
 }
