@@ -5,72 +5,55 @@ options
     language = Java;
 }
 
+@parser::members {
+  public void reportError(RecognitionException e) {
+    throw new RuntimeException("I quit!\n" + e.getMessage());
+  }
+}
+
+@lexer::members {
+  public void reportError(RecognitionException e) {
+    throw new RuntimeException("I quit!\n" + e.getMessage());
+  }
+}
+
 /*
  * Parser Rules
  */
-chat                : line+ EOF ;
+chatLine            : (commands | WORD | WHITESPACE)+ NEWLINE?;
 
-line                : name command msg NEWLINE ;
+commands            : (nickCommand | userCommand | capCommand);
 
-msg                 : (command | WORD | WHITESPACE)+ ;
+initCommand         : (capCommand | nickCommand | userCommand)+ NEWLINE?;
 
-name                : WORD WHITESPACE;
+nickCommand         : 'NICK' WHITESPACE user NEWLINE?;
 
-reply               : identifier WHITESPACE (status (WHITESPACE asterisk)? WHITESPACE target WHITESPACE DELIMITER message | command);
+userCommand         : 'USER' WHITESPACE user WHITESPACE userMode WHITESPACE unused WHITESPACE DELIMITER realname NEWLINE?;
 
-command             : (WHOIS | NICK | USER | PRIVMSG | JOIN) (WHITESPACE | WORD)+ (DELIMITER message)?;
+capCommand          : 'CAP LS' WHITESPACE WORD NEWLINE?;
 
-message             : (WORD | WHITESPACE)+;
+/* simples */
+realname            : (WORD | WHITESPACE)+;
 
-identifier          : DELIMITER WORD;
+user                : WORD;
 
-status              : WORD;
+userMode            : WORD;
 
-target              : WORD;
-
-asterisk            : WORD;
-
+unused              : WORD;
 
 /*
  * Lexer Rules
  */
-fragment N          : ('N'|'n') ;
-fragment I          : ('I'|'i') ;
-fragment C          : ('C'|'c') ;
-fragment K          : ('K'|'k') ;
-fragment W          : ('W'|'w') ;
-fragment H          : ('H'|'h') ;
-fragment O          : ('O'|'o') ;
-fragment S          : ('S'|'s') ;
-fragment U          : ('U'|'u') ;
-fragment E          : ('E'|'e') ;
-fragment R          : ('R'|'r') ;
-fragment P          : ('P'|'p') ;
-fragment V          : ('V'|'v') ;
-fragment M          : ('M'|'m') ;
-fragment G          : ('G'|'g') ;
-fragment J          : ('J'|'j') ;
-
 fragment LOWERCASE  : [a-z] ;
 fragment UPPERCASE  : [A-Z] ;
 fragment NUMS       : [0-9] ;
 
-NICK                : N I C K;
+WHITESPACE          : (' ' | '\t')+ ;
 
-WHOIS               : W H O I S;
-
-USER                : U S E R;
-
-PRIVMSG             : P R I V M S G;
-
-JOIN                : J O I N;
-
-WORD                : (LOWERCASE | UPPERCASE | NUMS | '_' | '*' | '.' | '!' | '@' | '#' | '-')+ ;
+WORD                : (LOWERCASE | UPPERCASE | NUMS | '_' | '*' | '.' | '!' | '@' | '#' | '-' | '?')+ ;
 
 DELIMITER           : ':';
 
-WHITESPACE          : (' ' | '\t')+ ;
-
-NEWLINE             : '\r\n';
+NEWLINE             : '\\r\\n' | '\\r' | '\r' | '\\n' | '\n' ;
 
 TEXT                : ('['|'(') ~[\])]+ (']'|')');

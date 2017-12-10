@@ -29,7 +29,7 @@ public class Guardian extends AbstractActor {
     /**
      * Get the props needed for a new actor.
      *
-     * @return the props
+     * @return the prot
      */
     public static Props props() {
         return Props.create(Guardian.class);

@@ -4,6 +4,13 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 
+/**
+ * Actor for printing system messages.
+ *
+ * @author Ruben Maurer
+ * @version 1.0
+ * @since 1.0
+ */
 public class Reporter extends AbstractActor {
 
     /**

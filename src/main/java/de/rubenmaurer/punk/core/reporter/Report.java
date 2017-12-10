@@ -1,7 +1,17 @@
 package de.rubenmaurer.punk.core.reporter;
 
+/**
+ * Class for reporting.
+ *
+ * @author Ruben Maurer
+ * @version 1.0
+ * @since 1.0
+ */
 public class Report {
 
+    /**
+     * Report types.
+     */
     public enum Type {
         INFO,
         ERROR,
