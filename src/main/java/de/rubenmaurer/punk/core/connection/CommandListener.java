@@ -2,7 +2,7 @@ package de.rubenmaurer.punk.core.connection;
 
 import de.rubenmaurer.punk.IRCListener;
 import de.rubenmaurer.punk.IRCParser;
-import de.rubenmaurer.punk.util.Template;
+import de.rubenmaurer.punk.core.Notification;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -151,6 +151,26 @@ public class CommandListener implements IRCListener {
     }
 
     /**
+     * Enter a parse tree produced by {@link IRCParser#quitCommand}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void enterQuitCommand(IRCParser.QuitCommandContext ctx) {
+        connection.logout();
+    }
+
+    /**
+     * Exit a parse tree produced by {@link IRCParser#quitCommand}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void exitQuitCommand(IRCParser.QuitCommandContext ctx) {
+
+    }
+
+    /**
      * Enter a parse tree produced by {@link IRCParser#realname}.
      *
      * @param ctx the parse tree
@@ -167,6 +187,26 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void exitRealname(IRCParser.RealnameContext ctx) {
+
+    }
+
+    /**
+     * Enter a parse tree produced by {@link IRCParser#message}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void enterMessage(IRCParser.MessageContext ctx) {
+
+    }
+
+    /**
+     * Exit a parse tree produced by {@link IRCParser#message}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void exitMessage(IRCParser.MessageContext ctx) {
 
     }
 
@@ -237,10 +277,7 @@ public class CommandListener implements IRCListener {
 
     @Override
     public void visitErrorNode(ErrorNode errorNode) {
-        connection.write(Template.get("ERR_UNKNOWNCOMMAND").multiple(
-                new String[] {"client", "command"},
-                new String[] {"schrotty", errorNode.getText()})
-        );
+        connection.write(Notification.get(Notification.Error.ERR_UNKNOWNCOMMAND, new String[] { "schrotty", errorNode.getText() }));
     }
 
     @Override

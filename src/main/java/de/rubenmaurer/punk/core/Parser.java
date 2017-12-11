@@ -8,6 +8,7 @@ import de.rubenmaurer.punk.IRCParser;
 import de.rubenmaurer.punk.core.connection.CommandListener;
 import de.rubenmaurer.punk.core.connection.Connection;
 import de.rubenmaurer.punk.core.connection.Message;
+import de.rubenmaurer.punk.core.reporter.Report;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -52,6 +53,14 @@ public class Parser extends AbstractActor {
         IRCListener listener = new CommandListener(connection);
 
         walker.walk(listener, context);
+    }
+
+    /**
+     * Gets fired before startup.
+     */
+    @Override
+    public void preStart() {
+        Guardian.reporter().tell(Report.create(Report.Type.ONLINE), self());
     }
 
     /**

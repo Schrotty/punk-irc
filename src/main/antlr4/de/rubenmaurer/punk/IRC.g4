@@ -22,7 +22,7 @@ options
  */
 chatLine            : (commands | WORD | WHITESPACE)+ NEWLINE?;
 
-commands            : (nickCommand | userCommand | capCommand);
+commands            : (nickCommand | userCommand | capCommand | quitCommand);
 
 initCommand         : (capCommand | nickCommand | userCommand)+ NEWLINE?;
 
@@ -32,8 +32,12 @@ userCommand         : 'USER' WHITESPACE user WHITESPACE userMode WHITESPACE unus
 
 capCommand          : 'CAP LS' WHITESPACE WORD NEWLINE?;
 
+quitCommand         : 'QUIT' WHITESPACE DELIMITER message? NEWLINE?;
+
 /* simples */
 realname            : (WORD | WHITESPACE)+;
+
+message             : (WORD | WHITESPACE)+;
 
 user                : WORD;
 

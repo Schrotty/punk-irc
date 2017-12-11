@@ -22,6 +22,11 @@ public class Guardian extends AbstractActor {
      */
     private static ActorRef reporter;
 
+    /**
+     * Get the reporter.
+     *
+     * @return the reporter
+     */
     public static ActorRef reporter() {
         return reporter;
     }
@@ -29,7 +34,7 @@ public class Guardian extends AbstractActor {
     /**
      * Get the props needed for a new actor.
      *
-     * @return the prot
+     * @return the props
      */
     public static Props props() {
         return Props.create(Guardian.class);
@@ -46,8 +51,8 @@ public class Guardian extends AbstractActor {
                 Punk.class.getPackage().getImplementationVersion())), self());
         reporter.tell(Report.create(Report.Type.NONE, ""), self());
 
-        reporter().tell(Report.create(Report.Type.ONLINE), self());
         context().actorOf(PunkServer.props(), "punk-irc-server");
+        reporter().tell(Report.create(Report.Type.ONLINE), self());
     }
 
     /**

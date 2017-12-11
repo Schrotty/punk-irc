@@ -7,6 +7,9 @@ import akka.io.Tcp;
 import akka.io.TcpMessage;
 import akka.util.ByteString;
 import de.rubenmaurer.punk.core.PunkServer;
+import de.rubenmaurer.punk.core.reporter.Report;
+
+import static de.rubenmaurer.punk.core.Guardian.reporter;
 
 /**
  * Actor for handling a established connection.
@@ -37,6 +40,22 @@ public class ConnectionHandler extends AbstractActor {
     }
 
     /**
+     * Gets fired before startup.
+     */
+    @Override
+    public void preStart() {
+        reporter().tell(Report.create(Report.Type.ONLINE), self());
+    }
+
+    /**
+     * Gets fired after stop.
+     */
+    @Override
+    public void postStop() {
+        reporter().tell(Report.create(Report.Type.OFFLINE), self());
+    }
+
+    /**
      * Handles incoming messages and process them.
      *
      * @return a receiveBuilder object
@@ -55,10 +74,7 @@ public class ConnectionHandler extends AbstractActor {
                     PunkServer.getParser().tell(Message.create(msg.data().decodeString("US-ASCII"), connection), self());
                 })
                 .match(Tcp.ConnectionClosed.class, msg -> getContext().stop(getSelf()))
-                .match(String.class, s -> {
-                    System.out.println("SERVER: " + s.intern() + "\r\n");
-                    remote.tell(TcpMessage.write(ByteString.fromString(s.intern() + '\r' + '\n'), TcpMessage.noAck()), getSelf());
-                })
+                .match(String.class, s -> remote.tell(TcpMessage.write(ByteString.fromString(s.intern() + '\r' + '\n'), TcpMessage.noAck()), getSelf()))
                 .build();
     }
 }

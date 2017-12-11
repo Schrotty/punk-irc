@@ -5,6 +5,8 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.io.Tcp;
 import akka.io.TcpMessage;
+import de.rubenmaurer.punk.core.Guardian;
+import de.rubenmaurer.punk.core.reporter.Report;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -49,12 +51,28 @@ public class ConnectionManager extends AbstractActor {
     }
 
     /**
+     * Server has connection with given nickname?
+     *
+     * @param nickname the given nickname
+     * @return has connection with nickname?
+     */
+    public static boolean hasNickname(String nickname) {
+        for (Connection connection: connections) {
+            if (connection.getNickname().equals(nickname)) return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Gets fired before actor startup.
      */
     @Override
     public void preStart() {
         final ActorRef tcp = Tcp.get(getContext().getSystem()).manager();
         tcp.tell(TcpMessage.bind(getSelf(), new InetSocketAddress("localhost", 6667), 100), getSelf());
+
+        Guardian.reporter().tell(Report.create(Report.Type.ONLINE), self());
     }
 
     /**

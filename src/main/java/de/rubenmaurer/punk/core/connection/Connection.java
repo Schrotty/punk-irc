@@ -1,7 +1,8 @@
 package de.rubenmaurer.punk.core.connection;
 
 import akka.actor.ActorRef;
-import de.rubenmaurer.punk.util.Template;
+import akka.io.TcpMessage;
+import de.rubenmaurer.punk.core.Notification;
 
 /**
  * Connection class for storing all needed information about a connection.
@@ -47,8 +48,13 @@ public class Connection {
      * @param nickname the new nickname
      */
     public void setNickname(String nickname) {
-        this.nickname = nickname;
-        tryLogin();
+        if (!ConnectionManager.hasNickname(nickname)) {
+            this.nickname = nickname;
+            tryLogin();
+            return;
+        }
+
+        write(Notification.get(Notification.Error.ERR_NICKNAMEINUSE, nickname));
     }
 
     /**
@@ -98,14 +104,20 @@ public class Connection {
     }
 
     /**
+     * Logout a connection.
+     */
+    public void logout() {
+        ConnectionManager.connections.remove(this);
+        connection.tell(TcpMessage.close(), ActorRef.noSender());
+    }
+
+    /**
      * Try to login the connection.
      */
     private void tryLogin() {
         if (!isLogged() && (!nickname.isEmpty() && !realname.isEmpty())) {
-            connection.tell(Template.get("RPL_WELCOME").multiple(
-                    new String[]{"nick", "user", "host"},
-                    new String[]{nickname, realname, "localhost"}
-            ), ActorRef.noSender());
+            connection.tell(Notification.get(Notification.Reply.RPL_WELCOME,
+                    new String[] { nickname, realname, "localhost" }), ActorRef.noSender());
 
             login = true;
         }

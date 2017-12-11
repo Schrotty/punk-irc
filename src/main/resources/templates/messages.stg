@@ -1,10 +1,9 @@
+//System
 startUp(version) ::= "Starting punkIRC v<version>..."
-
-helloWorld(username) ::= "Hello <username>! How are you doing?!"
-test(username, password) ::= "Hello <username>, please enter your <password>!"
 
 //Replys
 RPL_WELCOME(nick, user, host) ::= ":localhost 001 <nick> :Welcome to the Internet Relay Chat Network <nick>!<user>@<host>"
 
 //Errors
-ERR_UNKNOWNCOMMAND(client, command) ::= "<client> <command> :Unknown command"
+ERR_UNKNOWNCOMMAND(client, command) ::= "<client> <command> :Unknown command."
+ERR_NICKNAMEINUSE(nick) ::= ":localhost 433 * <nick> :Nickname is already in use."
