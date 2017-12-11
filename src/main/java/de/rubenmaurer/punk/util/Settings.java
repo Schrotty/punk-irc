@@ -35,6 +35,28 @@ public class Settings {
     }
 
     /**
+     * Get the hostname specified in properties.
+     *
+     * @return the hostname
+     */
+    public static String hostname() {
+        return getInstance().get("hostname");
+    }
+
+    /**
+     * Get the count of parse workers.
+     *
+     * @return the parse worker count
+     */
+    public static int parseWorker() {
+        return Integer.parseInt(getInstance().get("parseWorker"));
+    }
+
+    public static String parseWorkerName(int index) {
+        return getInstance().get("parseWorkerNames").split(";")[index];
+    }
+
+    /**
      * Get the singleton.
      *
      * @return the singleton

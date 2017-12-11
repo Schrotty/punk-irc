@@ -1,4 +1,4 @@
-package de.rubenmaurer.punk.core.connection;
+package de.rubenmaurer.punk.core.irc.client;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
@@ -6,7 +6,8 @@ import akka.actor.Props;
 import akka.io.Tcp;
 import akka.io.TcpMessage;
 import akka.util.ByteString;
-import de.rubenmaurer.punk.core.PunkServer;
+import de.rubenmaurer.punk.core.irc.PunkServer;
+import de.rubenmaurer.punk.core.irc.parser.Message;
 import de.rubenmaurer.punk.core.reporter.Report;
 
 import static de.rubenmaurer.punk.core.Guardian.reporter;
@@ -75,6 +76,12 @@ public class ConnectionHandler extends AbstractActor {
                 })
                 .match(Tcp.ConnectionClosed.class, msg -> getContext().stop(getSelf()))
                 .match(String.class, s -> remote.tell(TcpMessage.write(ByteString.fromString(s.intern() + '\r' + '\n'), TcpMessage.noAck()), getSelf()))
+                .match(Connection.class, con -> {
+                    int index = ConnectionManager.connections.indexOf(connection);
+                    if (index != -1) ConnectionManager.connections.set(index, con);
+
+                    connection = con;
+                })
                 .build();
     }
 }

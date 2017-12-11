@@ -1,8 +1,10 @@
-package de.rubenmaurer.punk.core.connection;
+package de.rubenmaurer.punk.core.irc.parser;
 
+import akka.actor.ActorRef;
 import de.rubenmaurer.punk.IRCListener;
 import de.rubenmaurer.punk.IRCParser;
-import de.rubenmaurer.punk.core.Notification;
+import de.rubenmaurer.punk.core.irc.client.Connection;
+import de.rubenmaurer.punk.util.Notification;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -22,12 +24,19 @@ public class CommandListener implements IRCListener {
     private Connection connection;
 
     /**
+     * The worker this worker works for.
+     */
+    private ActorRef worker;
+
+    /**
      * Create new command listener.
      *
      * @param connection the used connection
+     * @param worker the used worker
      */
-    public CommandListener(Connection connection) {
+    CommandListener(Connection connection, ActorRef worker) {
         this.connection = connection;
+        this.worker = worker;
     }
 
     /**
@@ -47,7 +56,7 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void exitChatLine(IRCParser.ChatLineContext ctx) {
-
+        worker.tell(connection, ActorRef.noSender());
     }
 
     /**

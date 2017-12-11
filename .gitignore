@@ -1,7 +1,9 @@
-*.class
-*.log
 /target/
 /.idea/
 /punk.iml
 /buildNumber.properties
-buildNumber.properties
+/test.json
+.cache/
+actor-system.vsdx
+alltests
+venv/

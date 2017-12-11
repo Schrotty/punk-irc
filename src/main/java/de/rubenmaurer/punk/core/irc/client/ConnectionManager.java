@@ -1,4 +1,4 @@
-package de.rubenmaurer.punk.core.connection;
+package de.rubenmaurer.punk.core.irc.client;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
@@ -9,7 +9,7 @@ import de.rubenmaurer.punk.core.Guardian;
 import de.rubenmaurer.punk.core.reporter.Report;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -29,7 +29,7 @@ public class ConnectionManager extends AbstractActor {
     /**
      * List of all established connections.
      */
-    static List<Connection> connections = new ArrayList<>();
+    static List<Connection> connections = new LinkedList<>();
 
     /**
      * Create a new connection-manager object.

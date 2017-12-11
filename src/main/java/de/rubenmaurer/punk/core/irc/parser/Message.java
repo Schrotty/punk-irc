@@ -1,4 +1,6 @@
-package de.rubenmaurer.punk.core.connection;
+package de.rubenmaurer.punk.core.irc.parser;
+
+import de.rubenmaurer.punk.core.irc.client.Connection;
 
 /**
  * Message type for parsing.

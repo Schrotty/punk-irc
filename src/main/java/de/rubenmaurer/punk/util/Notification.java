@@ -1,6 +1,4 @@
-package de.rubenmaurer.punk.core;
-
-import de.rubenmaurer.punk.util.Template;
+package de.rubenmaurer.punk.util;
 
 /**
  * Class for creating notification strings.
@@ -39,10 +37,12 @@ public class Notification {
     public static String get(Error type, String[] values) {
         if (type.equals(Error.ERR_UNKNOWNCOMMAND))
             return Template.get("ERR_UNKNOWNCOMMAND").multiple(
-                new String[] {"client", "command"}, values);
+                    new String[] {"client", "command"}, values);
 
         if (type.equals(Error.ERR_NICKNAMEINUSE))
-            return Template.get("ERR_NICKNAMEINUSE").single("nick", values[0]);
+            return Template.get("ERR_NICKNAMEINUSE").multiple(
+                    new String[] { "nick", "host" },
+                    new String[] { values[0], Settings.hostname() });
 
         return "";
     }

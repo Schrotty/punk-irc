@@ -1,8 +1,9 @@
-package de.rubenmaurer.punk.core.connection;
+package de.rubenmaurer.punk.core.irc.client;
 
 import akka.actor.ActorRef;
 import akka.io.TcpMessage;
-import de.rubenmaurer.punk.core.Notification;
+import de.rubenmaurer.punk.util.Notification;
+import de.rubenmaurer.punk.util.Settings;
 
 /**
  * Connection class for storing all needed information about a connection.
@@ -117,7 +118,7 @@ public class Connection {
     private void tryLogin() {
         if (!isLogged() && (!nickname.isEmpty() && !realname.isEmpty())) {
             connection.tell(Notification.get(Notification.Reply.RPL_WELCOME,
-                    new String[] { nickname, realname, "localhost" }), ActorRef.noSender());
+                    new String[] { nickname, realname, Settings.hostname()}), ActorRef.noSender());
 
             login = true;
         }

@@ -6,4 +6,4 @@ RPL_WELCOME(nick, user, host) ::= ":localhost 001 <nick> :Welcome to the Interne
 
 //Errors
 ERR_UNKNOWNCOMMAND(client, command) ::= "<client> <command> :Unknown command."
-ERR_NICKNAMEINUSE(nick) ::= ":localhost 433 * <nick> :Nickname is already in use."
+ERR_NICKNAMEINUSE(nick, host) ::= ":<host> 433 * <nick> :Nickname is already in use."

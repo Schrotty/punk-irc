@@ -4,6 +4,7 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import de.rubenmaurer.punk.Punk;
+import de.rubenmaurer.punk.core.irc.PunkServer;
 import de.rubenmaurer.punk.core.reporter.Report;
 import de.rubenmaurer.punk.core.reporter.Reporter;
 import de.rubenmaurer.punk.util.Template;

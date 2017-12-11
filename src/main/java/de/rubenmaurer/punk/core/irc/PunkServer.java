@@ -1,11 +1,16 @@
-package de.rubenmaurer.punk.core;
+package de.rubenmaurer.punk.core.irc;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.io.Tcp;
-import de.rubenmaurer.punk.core.connection.ConnectionManager;
+import de.rubenmaurer.punk.core.Guardian;
+import de.rubenmaurer.punk.core.irc.client.ConnectionManager;
+import de.rubenmaurer.punk.core.irc.parser.Parser;
 import de.rubenmaurer.punk.core.reporter.Report;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * Actor for managing all parts for the irc-server.
@@ -33,6 +38,15 @@ public class PunkServer extends AbstractActor {
      */
     public static ActorRef getParser() {
         return parser;
+    }
+
+    /**
+     * Get the connection-manager.
+     *
+     * @return the connection manager
+     */
+    public static ActorRef getConnectionManager() {
+        return connectionManager;
     }
 
     /**
