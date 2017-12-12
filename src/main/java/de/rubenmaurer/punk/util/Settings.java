@@ -44,6 +44,33 @@ public class Settings {
     }
 
     /**
+     * Get the name of this server.
+     *
+     * @return the server name
+     */
+    public static String servername() {
+        return Settings.getInstance().get("servername");
+    }
+
+    /**
+     * Get the version of this server.
+     *
+     * @return the server version
+     */
+    public static String version() {
+        return Punk.class.getPackage().getImplementationVersion();
+    }
+
+    /**
+     * Get the servers build date.
+     *
+     * @return the build date
+     */
+    public static String buildDate() {
+        return "01.01.1970";
+    }
+
+    /**
      * Get the count of parse workers.
      *
      * @return the parse worker count
@@ -61,7 +88,7 @@ public class Settings {
      *
      * @return the singleton
      */
-    public static Settings getInstance() {
+    static Settings getInstance() {
         return self;
     }
 

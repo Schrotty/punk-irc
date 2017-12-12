@@ -22,17 +22,25 @@ options
  */
 chatLine            : (commands | WORD | WHITESPACE)+ NEWLINE?;
 
-commands            : (nickCommand | userCommand | capCommand | quitCommand);
+commands            : (nickCommand | userCommand | capCommand | quitCommand | privmsgCommand | ping | pong | motd);
 
 initCommand         : (capCommand | nickCommand | userCommand)+ NEWLINE?;
 
-nickCommand         : 'NICK' WHITESPACE user NEWLINE?;
+nickCommand         : 'NICK' WHITESPACE delimiter? user NEWLINE?;
 
 userCommand         : 'USER' WHITESPACE user WHITESPACE userMode WHITESPACE unused WHITESPACE DELIMITER realname NEWLINE?;
 
 capCommand          : 'CAP LS' WHITESPACE WORD NEWLINE?;
 
 quitCommand         : 'QUIT' WHITESPACE DELIMITER message? NEWLINE?;
+
+privmsgCommand      : 'PRIVMSG' WHITESPACE user WHITESPACE DELIMITER message? NEWLINE?;
+
+ping                : 'PING' NEWLINE?;
+
+pong                : 'PONG' NEWLINE?;
+
+motd                : 'MOTD' NEWLINE?;
 
 /* simples */
 realname            : (WORD | WHITESPACE)+;
@@ -44,6 +52,8 @@ user                : WORD;
 userMode            : WORD;
 
 unused              : WORD;
+
+delimiter           : DELIMITER;
 
 /*
  * Lexer Rules

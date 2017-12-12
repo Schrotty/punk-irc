@@ -4,6 +4,7 @@ import akka.actor.ActorRef;
 import akka.io.TcpMessage;
 import de.rubenmaurer.punk.util.Notification;
 import de.rubenmaurer.punk.util.Settings;
+import de.rubenmaurer.punk.util.Template;
 
 /**
  * Connection class for storing all needed information about a connection.
@@ -50,6 +51,11 @@ public class Connection {
      */
     public void setNickname(String nickname) {
         if (!ConnectionManager.hasNickname(nickname)) {
+            if (login) {
+                write(Notification.get(Notification.Reply.RPL_NICKCHANGE,
+                        new String[] { this.nickname, nickname }));
+            }
+
             this.nickname = nickname;
             tryLogin();
             return;
@@ -73,8 +79,13 @@ public class Connection {
      * @param realname the new real-name
      */
     public void setRealname(String realname) {
-        this.realname = realname;
-        tryLogin();
+        if(this.realname.isEmpty()) {
+            this.realname = realname;
+            tryLogin();
+            return;
+        }
+
+        write(Notification.get(Notification.Error.ERR_ALREADYREGISTRED, Settings.hostname()));
     }
 
     /**
@@ -105,10 +116,40 @@ public class Connection {
     }
 
     /**
-     * Logout a connection.
+     * Write a string to a specific connection.
+
+     * @param message the message to write
      */
-    public void logout() {
+    private void write(Object message) {
+        connection.tell(message, ActorRef.noSender());
+    }
+
+    /**
+     * Send message to another user.
+     *
+     * @param nickname the user to chat with
+     * @param message the message to send
+     */
+    public void chat(String nickname, String message) {
+        for (Connection con : ConnectionManager.connections) {
+            if (con.nickname.equals(nickname)) {
+                write(Message.create(con.getConnection(), nickname, message, this.nickname));
+                return;
+            }
+        }
+
+        write(Notification.get(Notification.Error.ERR_NOSUCHNICK, nickname));
+    }
+
+    /**
+     * Logout a connection.
+     *
+     * @param message the quit message
+     */
+    public void logout(String message) {
         ConnectionManager.connections.remove(this);
+
+        write(Notification.get(Notification.Error.ERROR, message));
         connection.tell(TcpMessage.close(), ActorRef.noSender());
     }
 
@@ -119,6 +160,10 @@ public class Connection {
         if (!isLogged() && (!nickname.isEmpty() && !realname.isEmpty())) {
             connection.tell(Notification.get(Notification.Reply.RPL_WELCOME,
                     new String[] { nickname, realname, Settings.hostname()}), ActorRef.noSender());
+
+            write(Notification.get(Notification.Reply.RPL_YOURHOST));
+            write(Notification.get(Notification.Reply.RPL_CREATED));
+            write(Notification.get(Notification.Reply.RPL_MYINFO));
 
             login = true;
         }
@@ -131,6 +176,13 @@ public class Connection {
      */
     private boolean isLogged() {
         return login;
+    }
+
+    /**
+     * Plays ping pong...
+     */
+    public void pong() {
+        write(Template.get("pong").toString());
     }
 
     /**

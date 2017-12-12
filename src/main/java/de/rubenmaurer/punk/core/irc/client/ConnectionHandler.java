@@ -82,6 +82,7 @@ public class ConnectionHandler extends AbstractActor {
 
                     connection = con;
                 })
+                .match(de.rubenmaurer.punk.core.irc.client.Message.class, s -> s.getTarget().tell(s.toString(), self()))
                 .build();
     }
 }

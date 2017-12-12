@@ -1,9 +1,23 @@
 //System
 startUp(version) ::= "Starting punkIRC v<version>..."
 
+//Uti strings
+quitMessage() ::= "Client Quit"
+pong() ::= "PONG"
+
 //Replys
-RPL_WELCOME(nick, user, host) ::= ":localhost 001 <nick> :Welcome to the Internet Relay Chat Network <nick>!<user>@<host>"
+RPL_WELCOME(nick, user, host) ::= ":<host> 001 <nick> :Welcome to the Internet Relay Chat Network <nick>!<user>@<host>"
+RPL_YOURHOST(host, servername, version) ::= ":<host> 002 :Your host is <servername>, running version <version>"
+RPL_CREATED(host, date) ::= ":<host> 003 :This server was created <date>"
+RPL_MYINFO(host, servername, version) ::= ":<host> 004 : <servername> <version> ao mtov"
+
+//Subs
+RPL_NICKCHANGE(old, host, new) ::= ":<old>!<host> NICK <new>"
+RPL_PRIVMSG(sender, host, target, message) ::= ":<sender>!<host> PRIVMSG <target> :<message>"
 
 //Errors
 ERR_UNKNOWNCOMMAND(client, command) ::= "<client> <command> :Unknown command."
 ERR_NICKNAMEINUSE(nick, host) ::= ":<host> 433 * <nick> :Nickname is already in use."
+ERR_ALREADYREGISTRED(host)  ::= ":<host> 462 :Unauthorized command (already registered)"
+ERR_NOSUCHNICK(host, nick) ::= ":<host> 401 <nick> :No such nick/ channel"
+ERROR(host, message) ::= "Closing Link: <host> (<message>)"

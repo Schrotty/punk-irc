@@ -5,6 +5,7 @@ import de.rubenmaurer.punk.IRCListener;
 import de.rubenmaurer.punk.IRCParser;
 import de.rubenmaurer.punk.core.irc.client.Connection;
 import de.rubenmaurer.punk.util.Notification;
+import de.rubenmaurer.punk.util.Template;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -166,7 +167,7 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void enterQuitCommand(IRCParser.QuitCommandContext ctx) {
-        connection.logout();
+        connection.logout(ctx.message() == null ? Template.get("quitMessage").toString() : ctx.message().getText());
     }
 
     /**
@@ -176,6 +177,67 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void exitQuitCommand(IRCParser.QuitCommandContext ctx) {
+
+    }
+
+    /**
+     * Enter a parse tree produced by {@link IRCParser#privmsgCommand}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void enterPrivmsgCommand(IRCParser.PrivmsgCommandContext ctx) {
+        connection.chat(ctx.user().getText(),
+                ctx.message() == null ? "" : ctx.message().getText());
+    }
+
+    /**
+     * Exit a parse tree produced by {@link IRCParser#privmsgCommand}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void exitPrivmsgCommand(IRCParser.PrivmsgCommandContext ctx) {
+
+    }
+
+    /**
+     * Enter a parse tree produced by {@link IRCParser#ping}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void enterPing(IRCParser.PingContext ctx) {
+        connection.pong();
+    }
+
+    /**
+     * Exit a parse tree produced by {@link IRCParser#ping}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void exitPing(IRCParser.PingContext ctx) {
+
+    }
+
+    /**
+     * Enter a parse tree produced by {@link IRCParser#pong}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void enterPong(IRCParser.PongContext ctx) {
+
+    }
+
+    /**
+     * Exit a parse tree produced by {@link IRCParser#pong}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void exitPong(IRCParser.PongContext ctx) {
 
     }
 
@@ -276,6 +338,26 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void exitUnused(IRCParser.UnusedContext ctx) {
+
+    }
+
+    /**
+     * Enter a parse tree produced by {@link IRCParser#delimiter}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void enterDelimiter(IRCParser.DelimiterContext ctx) {
+
+    }
+
+    /**
+     * Exit a parse tree produced by {@link IRCParser#delimiter}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void exitDelimiter(IRCParser.DelimiterContext ctx) {
 
     }
 
