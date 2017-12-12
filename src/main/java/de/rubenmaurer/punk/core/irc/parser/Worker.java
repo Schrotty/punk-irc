@@ -25,6 +25,9 @@ import java.util.Arrays;
  */
 public class Worker extends AbstractActor {
 
+    /**
+     * Handler to work for.
+     */
     private ActorRef handler;
 
     /**
