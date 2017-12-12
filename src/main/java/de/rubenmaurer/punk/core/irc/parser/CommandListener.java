@@ -241,6 +241,16 @@ public class CommandListener implements IRCListener {
 
     }
 
+    @Override
+    public void enterMotd(IRCParser.MotdContext ctx) {
+
+    }
+
+    @Override
+    public void exitMotd(IRCParser.MotdContext ctx) {
+
+    }
+
     /**
      * Enter a parse tree produced by {@link IRCParser#realname}.
      *
