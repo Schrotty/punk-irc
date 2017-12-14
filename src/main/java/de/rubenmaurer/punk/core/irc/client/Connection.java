@@ -2,6 +2,7 @@ package de.rubenmaurer.punk.core.irc.client;
 
 import akka.actor.ActorRef;
 import akka.io.TcpMessage;
+import de.rubenmaurer.punk.core.irc.messages.WhoIs;
 import de.rubenmaurer.punk.util.Notification;
 import de.rubenmaurer.punk.util.Settings;
 import de.rubenmaurer.punk.util.Template;
@@ -183,6 +184,25 @@ public class Connection {
      */
     public void pong() {
         write(Template.get("pong").toString());
+    }
+
+    /**
+     * Who is the given user?
+     *
+     * @param user the given user
+     */
+    private void whoIs(WhoIs user) {
+        write(Notification.get(Notification.Reply.RPL_WHOISUSER,
+                new String[] { user.getNickname(), user.getNickname(), Settings.hostname(), user.getRealname() }));
+    }
+
+    public void finishRequest(de.rubenmaurer.punk.core.irc.messages.Message message) {
+        if (!message.hasError()) {
+            if (message.getClass() == de.rubenmaurer.punk.core.irc.messages.WhoIs.class) whoIs((WhoIs) message);
+            return;
+        }
+
+        write(message.getError());
     }
 
     /**

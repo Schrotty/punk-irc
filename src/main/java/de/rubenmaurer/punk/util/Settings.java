@@ -2,6 +2,8 @@ package de.rubenmaurer.punk.util;
 
 import de.rubenmaurer.punk.Punk;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -79,8 +81,32 @@ public class Settings {
         return Integer.parseInt(getInstance().get("parseWorker"));
     }
 
+    /**
+     * Get specific parser-worker name.
+     *
+     * @param index the index to use
+     * @return the worker name
+     */
     public static String parseWorkerName(int index) {
         return getInstance().get("parseWorkerNames").split(";")[index];
+    }
+
+    /**
+     * Get the message of the day.
+     *
+     * @return the message of the day
+     */
+    public static String messageofTheDay() {
+        StringBuilder builder = new StringBuilder();
+
+        try(BufferedReader reader = new BufferedReader(new FileReader("./motd.txt"))) {
+            reader.lines().forEach(builder::append);
+        } catch (Exception exception) {
+
+        }
+
+        if (builder.toString().isEmpty()) return Notification.get(Notification.Error.ERR_NOMOTD);
+        return builder.toString();
     }
 
     /**
@@ -88,7 +114,7 @@ public class Settings {
      *
      * @return the singleton
      */
-    static Settings getInstance() {
+    private static Settings getInstance() {
         return self;
     }
 

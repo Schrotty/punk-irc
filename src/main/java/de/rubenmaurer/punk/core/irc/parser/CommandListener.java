@@ -4,7 +4,9 @@ import akka.actor.ActorRef;
 import de.rubenmaurer.punk.IRCListener;
 import de.rubenmaurer.punk.IRCParser;
 import de.rubenmaurer.punk.core.irc.client.Connection;
+import de.rubenmaurer.punk.core.irc.messages.MessageBuilder;
 import de.rubenmaurer.punk.util.Notification;
+import de.rubenmaurer.punk.util.Settings;
 import de.rubenmaurer.punk.util.Template;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -243,11 +245,31 @@ public class CommandListener implements IRCListener {
 
     @Override
     public void enterMotd(IRCParser.MotdContext ctx) {
-
+        connection.write(Settings.messageofTheDay());
     }
 
     @Override
     public void exitMotd(IRCParser.MotdContext ctx) {
+
+    }
+
+    /**
+     * Enter a parse tree produced by {@link IRCParser#whois}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void enterWhois(IRCParser.WhoisContext ctx) {
+        connection.getConnection().tell(MessageBuilder.whoIs(ctx.user().getText()), ActorRef.noSender());
+    }
+
+    /**
+     * Exit a parse tree produced by {@link IRCParser#whois}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void exitWhois(IRCParser.WhoisContext ctx) {
 
     }
 

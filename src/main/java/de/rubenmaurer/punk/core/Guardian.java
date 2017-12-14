@@ -52,8 +52,12 @@ public class Guardian extends AbstractActor {
                 Punk.class.getPackage().getImplementationVersion())), self());
         reporter.tell(Report.create(Report.Type.NONE, ""), self());
 
-        context().actorOf(PunkServer.props(), "punk-irc-server");
+        reporter().tell(Report.create(Report.Type.INFO, Template.get("startSystem").single("system", "guardian actor")), self());
         reporter().tell(Report.create(Report.Type.ONLINE), self());
+        reporter().tell(Report.create(Report.Type.NONE, ""), self());
+
+        reporter().tell(Report.create(Report.Type.INFO, Template.get("startSystem").single("system", "system/ manager actors")), self());
+        context().actorOf(PunkServer.props(), "punk-irc-server");
     }
 
     /**

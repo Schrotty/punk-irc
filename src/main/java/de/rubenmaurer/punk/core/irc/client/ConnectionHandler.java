@@ -6,6 +6,7 @@ import akka.actor.Props;
 import akka.io.Tcp;
 import akka.io.TcpMessage;
 import akka.util.ByteString;
+
 import de.rubenmaurer.punk.core.irc.PunkServer;
 import de.rubenmaurer.punk.core.irc.parser.Message;
 import de.rubenmaurer.punk.core.reporter.Report;
@@ -83,6 +84,10 @@ public class ConnectionHandler extends AbstractActor {
                     connection = con;
                 })
                 .match(de.rubenmaurer.punk.core.irc.client.Message.class, s -> s.getTarget().tell(s.toString(), self()))
+                .match(de.rubenmaurer.punk.core.irc.messages.WhoIs.class, msg -> {
+                    if (msg.isRequest()) context().parent().tell(msg, self());
+                    if (!msg.isRequest()) connection.finishRequest(msg);
+                })
                 .build();
     }
 }

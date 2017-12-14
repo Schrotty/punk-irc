@@ -17,7 +17,8 @@ public class Notification {
         ERR_NICKNAMEINUSE,
         ERR_ALREADYREGISTRED,
         ERR_NOSUCHNICK,
-        ERROR
+        ERROR,
+        ERR_NOMOTD
     }
 
     /**
@@ -28,7 +29,9 @@ public class Notification {
         RPL_YOURHOST,
         RPL_CREATED,
         RPL_MYINFO,
-        RPL_PRIVMSG, RPL_NICKCHANGE
+        RPL_PRIVMSG,
+        RPL_NICKCHANGE,
+        RPL_WHOISUSER
     }
 
     private Notification() {
@@ -64,6 +67,9 @@ public class Notification {
                     new String[]{ "host", "nick" },
                     new String[]{ Settings.hostname(), values[0] });
 
+        if (type.equals(Error.ERR_NOMOTD))
+            return Template.get("ERR_NOMOTD").single("host", Settings.hostname());
+
         return "";
     }
 
@@ -76,6 +82,16 @@ public class Notification {
      */
     public static String get(Error type, String value) {
         return get(type, new String[] { value });
+    }
+
+    /**
+     * Get a reply string filled with a single value.
+     *
+     * @param type reply type
+     * @return the reply string
+     */
+    public static String get(Error type) {
+        return get(type, new String[] { "" });
     }
 
     /**
@@ -114,6 +130,12 @@ public class Notification {
             return Template.get("RPL_PRIVMSG").multiple(
                     new String[]{ "sender", "host", "target", "message" },
                     new String[]{ values[0], Settings.hostname(), values[1], values[2] });
+
+        if (type.equals(Reply.RPL_WHOISUSER))
+            return Template.get("RPL_WHOISUSER").multiple(
+                    new String[] { "nick", "user", "host", "real" },
+                    new String[] { values[0], values[1], Settings.hostname(), values[3] }
+            );
 
         return "";
     }

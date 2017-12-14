@@ -6,7 +6,12 @@ import akka.actor.Props;
 import akka.io.Tcp;
 import akka.io.TcpMessage;
 import de.rubenmaurer.punk.core.Guardian;
+import de.rubenmaurer.punk.core.irc.messages.Message;
+import de.rubenmaurer.punk.core.irc.messages.MessageBuilder;
+import de.rubenmaurer.punk.core.irc.messages.WhoIs;
 import de.rubenmaurer.punk.core.reporter.Report;
+import de.rubenmaurer.punk.util.Notification;
+import de.rubenmaurer.punk.util.Settings;
 
 import java.net.InetSocketAddress;
 import java.util.LinkedList;
@@ -64,15 +69,33 @@ public class ConnectionManager extends AbstractActor {
         return false;
     }
 
+    private static Connection getConnection(String nickname) {
+        for (Connection connection: connections) {
+            if (connection.getNickname().equals(nickname)) return connection;
+        }
+
+        return null;
+    }
+
+    private Message whoIs(WhoIs message) {
+        if (hasNickname(message.getNickname())) {
+            Connection connection = getConnection(message.getNickname());
+
+            if (connection != null) return MessageBuilder.whoIs(connection.getNickname(), connection.getRealname());
+        }
+
+        return MessageBuilder.whoIs("", "", Notification.get(Notification.Error.ERR_NOSUCHNICK, message.getNickname()));
+    }
+
     /**
      * Gets fired before actor startup.
      */
     @Override
     public void preStart() {
-        final ActorRef tcp = Tcp.get(getContext().getSystem()).manager();
-        tcp.tell(TcpMessage.bind(getSelf(), new InetSocketAddress("localhost", 6667), 100), getSelf());
-
         Guardian.reporter().tell(Report.create(Report.Type.ONLINE), self());
+
+        final ActorRef tcp = Tcp.get(getContext().getSystem()).manager();
+        tcp.tell(TcpMessage.bind(getSelf(), new InetSocketAddress("localhost", Settings.port()), 100), getSelf());
     }
 
     /**
@@ -89,6 +112,7 @@ public class ConnectionManager extends AbstractActor {
                     manager.tell(conn, getSelf());
                     getSender().tell(TcpMessage.register(getContext().actorOf(ConnectionHandler.props())), getSelf());
                 })
+                .match(WhoIs.class, msg -> sender().tell(whoIs(msg), self()))
                 .build();
     }
 }

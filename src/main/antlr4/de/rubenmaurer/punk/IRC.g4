@@ -22,7 +22,7 @@ options
  */
 chatLine            : (commands | WORD | WHITESPACE)+ NEWLINE?;
 
-commands            : (nickCommand | userCommand | capCommand | quitCommand | privmsgCommand | ping | pong | motd);
+commands            : (nickCommand | userCommand | capCommand | quitCommand | privmsgCommand | ping | pong | motd | whois);
 
 initCommand         : (capCommand | nickCommand | userCommand)+ NEWLINE?;
 
@@ -41,6 +41,8 @@ ping                : 'PING' NEWLINE?;
 pong                : 'PONG' NEWLINE?;
 
 motd                : 'MOTD' NEWLINE?;
+
+whois               : 'WHOIS' WHITESPACE user NEWLINE?;
 
 /* simples */
 realname            : (WORD | WHITESPACE)+;

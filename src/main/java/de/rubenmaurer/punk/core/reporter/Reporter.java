@@ -3,6 +3,7 @@ package de.rubenmaurer.punk.core.reporter;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import de.rubenmaurer.punk.core.irc.PunkServer;
 
 /**
  * Actor for printing system messages.
@@ -76,13 +77,22 @@ public class Reporter extends AbstractActor {
     }
 
     /**
+     * Process a message.
+     *
+     * @param message the message to process
+     */
+    private void processMessage(Report message) {
+        print(messageBuilder(message.getMessage(), message.getType(), sender()));
+    }
+
+    /**
      * Receives a message an process it.
      *
      * @return a Receive object
      */
     public AbstractActor.Receive createReceive() {
         return receiveBuilder()
-                .match(Report.class, s -> print(messageBuilder(s.getMessage(), s.getType(), sender())))
+                .match(Report.class, this::processMessage)
                 .build();
     }
 }

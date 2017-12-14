@@ -1,15 +1,21 @@
 //System
-startUp(version) ::= "Starting punkIRC v<version>..."
+startUp(version) ::= "--- punkIRC v.<version> ---"
+startSystem(system) ::= "--- Starting <system> ---"
 
-//Uti strings
+//Util strings
 quitMessage() ::= "Client Quit"
 pong() ::= "PONG"
+
+//Actor messages
+parserWorkStart() ::= "START_PARSER_WORKER"
 
 //Replys
 RPL_WELCOME(nick, user, host) ::= ":<host> 001 <nick> :Welcome to the Internet Relay Chat Network <nick>!<user>@<host>"
 RPL_YOURHOST(host, servername, version) ::= ":<host> 002 :Your host is <servername>, running version <version>"
 RPL_CREATED(host, date) ::= ":<host> 003 :This server was created <date>"
 RPL_MYINFO(host, servername, version) ::= ":<host> 004 : <servername> <version> ao mtov"
+RPL_WHOISUSER(nick, user, host, real) ::= ":<host> 311 <nick> <user> <host> * :<real>"
+RPL_WHOISSERVER(nick, server, host, info) ::= ":<host> 312 <nick> <server> :<info>"
 
 //Subs
 RPL_NICKCHANGE(old, host, new) ::= ":<old>!<host> NICK <new>"
@@ -20,4 +26,5 @@ ERR_UNKNOWNCOMMAND(client, command) ::= "<client> <command> :Unknown command."
 ERR_NICKNAMEINUSE(nick, host) ::= ":<host> 433 * <nick> :Nickname is already in use."
 ERR_ALREADYREGISTRED(host)  ::= ":<host> 462 :Unauthorized command (already registered)"
 ERR_NOSUCHNICK(host, nick) ::= ":<host> 401 <nick> :No such nick/ channel"
+ERR_NOMOTD(host) ::= ":<host> 422 :MOTD File is missing"
 ERROR(host, message) ::= "Closing Link: <host> (<message>)"
