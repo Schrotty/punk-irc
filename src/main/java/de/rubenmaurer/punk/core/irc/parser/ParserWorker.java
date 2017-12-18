@@ -8,6 +8,7 @@ import de.rubenmaurer.punk.IRCListener;
 import de.rubenmaurer.punk.IRCParser;
 import de.rubenmaurer.punk.core.Guardian;
 import de.rubenmaurer.punk.core.irc.client.Connection;
+import de.rubenmaurer.punk.core.irc.messages.Info;
 import de.rubenmaurer.punk.core.irc.messages.ParseMessage;
 import de.rubenmaurer.punk.core.reporter.Report;
 import org.antlr.v4.runtime.CharStream;
@@ -24,7 +25,7 @@ import java.util.Arrays;
  * @version 1.0
  * @since 1.0
  */
-public class Worker extends AbstractActor {
+public class ParserWorker extends AbstractActor {
 
     /**
      * Handler to work for.
@@ -37,7 +38,7 @@ public class Worker extends AbstractActor {
      * @return the props
      */
     public static Props props() {
-        return Props.create(Worker.class);
+        return Props.create(ParserWorker.class);
     }
 
     /**
@@ -67,6 +68,7 @@ public class Worker extends AbstractActor {
     @Override
     public void preStart() {
         Guardian.reporter().tell(Report.create(Report.Type.ONLINE), self());
+        context().parent().tell(Info.READY, self());
     }
 
     /**

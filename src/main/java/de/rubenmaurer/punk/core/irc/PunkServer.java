@@ -7,7 +7,8 @@ import akka.io.Tcp;
 import de.rubenmaurer.punk.core.Guardian;
 import de.rubenmaurer.punk.core.irc.channel.ChannelManager;
 import de.rubenmaurer.punk.core.irc.client.ConnectionManager;
-import de.rubenmaurer.punk.core.irc.parser.Parser;
+import de.rubenmaurer.punk.core.irc.messages.Info;
+import de.rubenmaurer.punk.core.irc.parser.ParserManager;
 import de.rubenmaurer.punk.core.reporter.Report;
 import de.rubenmaurer.punk.util.Template;
 
@@ -81,7 +82,7 @@ public class PunkServer extends AbstractActor {
         Guardian.reporter().tell(Report.create(Report.Type.ONLINE), self());
         connectionManager = context().actorOf(conProps, "connection-manager");
         channelManager = context().actorOf(ChannelManager.props(),"channel-manager");
-        parser = context().actorOf(Parser.props(), "parser-manager");
+        parser = context().actorOf(ParserManager.props(), "parser-manager");
 
         parser.tell(Template.get("parserWorkStart").toString(), self());
     }
@@ -101,6 +102,8 @@ public class PunkServer extends AbstractActor {
      */
     @Override
     public Receive createReceive() {
-        return receiveBuilder().build();
+        return receiveBuilder()
+                .match(Info.READY.getClass(), s -> context().parent().tell(Info.READY, self()))
+                .build();
     }
 }

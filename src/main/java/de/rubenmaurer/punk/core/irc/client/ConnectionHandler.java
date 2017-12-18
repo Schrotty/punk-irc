@@ -85,7 +85,7 @@ public class ConnectionHandler extends AbstractActor {
                         ConnectionManager.connections.add(connection);
                     }
 
-                    System.out.println(msg.data().decodeString("US-ASCII"));
+                    //System.out.println(msg.data().decodeString("US-ASCII"));
                     PunkServer.getParser().tell(ParseMessage.create(msg.data().decodeString("US-ASCII"), connection), self());
                 })
                 .match(Tcp.ConnectionClosed.class, msg -> getContext().stop(getSelf()))

@@ -271,7 +271,9 @@ public class Connection {
     }
 
     public void relay(Chat chat) {
-        write(Notification.get(Notification.Reply.RPL_PRIVMSG,
-                new String[]{ nickname, hostname, chat.getTarget(), chat.getMessage() }));
+        String val = Notification.get(Notification.Reply.RPL_PRIVMSG,
+            new String[]{ nickname, chat.getTarget(), chat.getMessage(), hostname });
+
+        write(val);
     }
 }

@@ -2,6 +2,7 @@ package de.rubenmaurer.punk.util;
 
 /**
  * Class for creating notification strings.
+ * TODO: Methods per Reply/ Error
  *
  * @author Ruben Maurer
  * @version 1.0

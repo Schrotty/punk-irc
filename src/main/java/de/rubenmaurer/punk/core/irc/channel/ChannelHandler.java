@@ -5,11 +5,14 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import de.rubenmaurer.punk.core.irc.messages.Chat;
 import de.rubenmaurer.punk.core.irc.messages.Join;
+import de.rubenmaurer.punk.core.reporter.Report;
 import de.rubenmaurer.punk.util.Notification;
 import de.rubenmaurer.punk.util.Template;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static de.rubenmaurer.punk.core.Guardian.reporter;
 
 /**
  * Actor for handling a single channel.
@@ -37,6 +40,14 @@ public class ChannelHandler extends AbstractActor {
      */
     public static Props props() {
         return Props.create(ChannelHandler.class);
+    }
+
+    /**
+     * Gets fired before startup.
+     */
+    @Override
+    public void preStart() {
+        reporter().tell(Report.create(Report.Type.ONLINE), self());
     }
 
     /**
@@ -74,7 +85,7 @@ public class ChannelHandler extends AbstractActor {
      */
     private void chat(Chat chat) {
         for (Map.Entry<String, ActorRef> entry : connections.entrySet()) {
-            entry.getValue().tell(chat, self());
+            if (entry.getValue() != sender()) entry.getValue().tell(chat, self());
         }
     }
 

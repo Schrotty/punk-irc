@@ -1,6 +1,7 @@
 //System
 startUp(version) ::= "--- punkIRC v.<version> ---"
 startSystem(system) ::= "--- Starting <system> ---"
+readyMessage() ::= "--- punkIRC is ready! ---"
 
 //Util strings
 quitMessage() ::= "Client Quit"

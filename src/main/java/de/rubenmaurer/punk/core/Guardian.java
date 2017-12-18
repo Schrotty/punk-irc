@@ -5,6 +5,7 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import de.rubenmaurer.punk.Punk;
 import de.rubenmaurer.punk.core.irc.PunkServer;
+import de.rubenmaurer.punk.core.irc.messages.Info;
 import de.rubenmaurer.punk.core.reporter.Report;
 import de.rubenmaurer.punk.core.reporter.Reporter;
 import de.rubenmaurer.punk.util.Template;
@@ -41,6 +42,12 @@ public class Guardian extends AbstractActor {
         return Props.create(Guardian.class);
     }
 
+    private void systemReady() {
+        reporter().tell(Report.create(Report.Type.NONE, ""), self());
+        reporter().tell(Report.create(Report.Type.INFO, Template.get("readyMessage").toString()), self());
+        reporter().tell(Report.create(Report.Type.NONE, ""), self());
+    }
+
     /**
      * Gets fired before start.
      */
@@ -67,6 +74,8 @@ public class Guardian extends AbstractActor {
      */
     @Override
     public Receive createReceive() {
-        return receiveBuilder().build();
+        return receiveBuilder()
+                .match(Info.READY.getClass(), s -> systemReady())
+                .build();
     }
 }

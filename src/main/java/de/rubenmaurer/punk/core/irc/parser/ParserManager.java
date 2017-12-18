@@ -3,6 +3,7 @@ package de.rubenmaurer.punk.core.irc.parser;
 import akka.actor.AbstractActor;
 import akka.actor.Props;
 import de.rubenmaurer.punk.core.Guardian;
+import de.rubenmaurer.punk.core.irc.messages.Info;
 import de.rubenmaurer.punk.core.irc.messages.ParseMessage;
 import de.rubenmaurer.punk.core.reporter.Report;
 import de.rubenmaurer.punk.util.Settings;
@@ -18,7 +19,9 @@ import java.util.Map;
  * @version 1.0
  * @since 1.0
  */
-public class Parser extends AbstractActor {
+public class ParserManager extends AbstractActor {
+
+    private int workerReady;
 
     /**
      * Work plan of with all parser workers.
@@ -26,7 +29,7 @@ public class Parser extends AbstractActor {
     private Map<String, Boolean> workerPlan = new HashMap<>();
 
     /**
-     * Worker name.
+     * ParserWorker name.
      */
     private String worker = Settings.parseWorkerName(0);
 
@@ -62,7 +65,7 @@ public class Parser extends AbstractActor {
      * @return the props
      */
     public static Props props() {
-        return Props.create(Parser.class);
+        return Props.create(ParserManager.class);
     }
 
     /**
@@ -83,8 +86,15 @@ public class Parser extends AbstractActor {
         for (int i = 0; i < Settings.parseWorker(); i++) {
             String name = Settings.parseWorkerName(i);
             workerPlan.put(name, false);
-            context().watch(context().actorOf(Worker.props(), name));
+            context().watch(context().actorOf(ParserWorker.props(), name));
         }
+
+        //context().parent().tell(Info.READY, self());
+    }
+
+    private void workerRunning() {
+        if (++workerReady == Settings.parseWorker())
+            context().parent().tell(Info.READY, self());
     }
 
     /**
@@ -98,6 +108,7 @@ public class Parser extends AbstractActor {
                 .match(ParseMessage.class, this::delegate)
                 .matchEquals(Template.get("parserWorkStart").toString(), s -> startWorker())
                 .match(String.class, s -> workerPlan.replace(s, false))
+                .match(Info.READY.getClass(), s -> workerRunning())
                 .build();
     }
 }
