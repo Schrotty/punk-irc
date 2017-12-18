@@ -7,10 +7,7 @@ import akka.io.Tcp;
 import akka.io.TcpMessage;
 import akka.util.ByteString;
 import de.rubenmaurer.punk.core.irc.PunkServer;
-import de.rubenmaurer.punk.core.irc.messages.ChatMessage;
-import de.rubenmaurer.punk.core.irc.messages.Join;
-import de.rubenmaurer.punk.core.irc.messages.WhoIs;
-import de.rubenmaurer.punk.core.irc.messages.ParseMessage;
+import de.rubenmaurer.punk.core.irc.messages.*;
 import de.rubenmaurer.punk.core.reporter.Report;
 
 import static de.rubenmaurer.punk.core.Guardian.reporter;
@@ -105,6 +102,10 @@ public class ConnectionHandler extends AbstractActor {
                     if (!msg.isRequest()) connection.finishRequest(msg);
                 })
                 .match(Join.class, j -> PunkServer.getChannelManager().tell(j, self()))
+                .match(Chat.class, c -> {
+                    if (!c.hasError()) connection.relay(c);
+                    if (c.hasError()) remote.tell(c.getError(), self());
+                })
                 .build();
     }
 }

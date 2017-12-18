@@ -440,26 +440,6 @@ public class CommandListener implements IRCListener {
     }
 
     /**
-     * Enter a parse tree produced by {@link IRCParser#target}.
-     *
-     * @param ctx the parse tree
-     */
-    @Override
-    public void enterTarget(IRCParser.TargetContext ctx) {
-
-    }
-
-    /**
-     * Exit a parse tree produced by {@link IRCParser#target}.
-     *
-     * @param ctx the parse tree
-     */
-    @Override
-    public void exitTarget(IRCParser.TargetContext ctx) {
-
-    }
-
-    /**
      * Enter a parse tree produced by {@link IRCParser#delimiter}.
      *
      * @param ctx the parse tree

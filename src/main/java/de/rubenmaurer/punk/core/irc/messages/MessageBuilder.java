@@ -1,5 +1,7 @@
 package de.rubenmaurer.punk.core.irc.messages;
 
+import akka.actor.ActorRef;
+
 /**
  * Builder for all types of messages.
  *
@@ -52,5 +54,32 @@ public class MessageBuilder {
      */
     public static Message join(String nickname, String channel, String hostname) {
         return new Join(nickname, channel, hostname);
+    }
+
+    /**
+     * Create a chatMessage.
+     *
+     * @param target the target
+     * @param nickname the nickname to use
+     * @param message the message
+     * @param sender the sender
+     * @param type message type
+     * @param hostname the hostname
+     * @return the message
+     */
+    public static Message chatMessage(ActorRef target, String nickname, String message, String sender, ChatMessage.Type type, String hostname) {
+        return new ChatMessage(target, nickname, message, sender, type, hostname);
+    }
+
+    /**
+     * Create a chat message.
+     *
+     * @param target the target
+     * @param type the message type
+     * @param message the message
+     * @return the message
+     */
+    public static Message chat(String target, Chat.Type type, String message) {
+        return new Chat(target, type, message);
     }
 }

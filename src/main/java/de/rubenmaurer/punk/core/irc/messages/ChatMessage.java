@@ -4,16 +4,16 @@ import akka.actor.ActorRef;
 import de.rubenmaurer.punk.util.Notification;
 
 /**
- * IRC chat message class.
+ * IRC Chat message class.
  *
  * @author Ruben Maurer
  * @version 1.0
  * @since 1.0
  */
-public class ChatMessage {
+public class ChatMessage extends Message {
 
     /**
-     * Type of the chat message.
+     * Type of the Chat message.
      */
     private Type type;
 
@@ -95,7 +95,7 @@ public class ChatMessage {
      * @param message the message
      * @param sender the senders nickname
      */
-    private ChatMessage(ActorRef target, String nickname, String message, String sender, Type type, String hostname) {
+    ChatMessage(ActorRef target, String nickname, String message, String sender, Type type, String hostname) {
         this.target = target;
         this.message = message;
         this.nickname = nickname;

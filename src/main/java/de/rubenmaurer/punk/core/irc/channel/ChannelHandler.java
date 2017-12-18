@@ -3,7 +3,7 @@ package de.rubenmaurer.punk.core.irc.channel;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
-
+import de.rubenmaurer.punk.core.irc.messages.Chat;
 import de.rubenmaurer.punk.core.irc.messages.Join;
 import de.rubenmaurer.punk.util.Notification;
 import de.rubenmaurer.punk.util.Template;
@@ -68,6 +68,17 @@ public class ChannelHandler extends AbstractActor {
     }
 
     /**
+     * Process chat messsage.
+     *
+     * @param chat the chat message
+     */
+    private void chat(Chat chat) {
+        for (Map.Entry<String, ActorRef> entry : connections.entrySet()) {
+            entry.getValue().tell(chat, self());
+        }
+    }
+
+    /**
      * Receive and process messages.
      *
      * @return a receive object
@@ -76,6 +87,7 @@ public class ChannelHandler extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(Join.class, this::join)
+                .match(Chat.class, this::chat)
                 .build();
     }
 }

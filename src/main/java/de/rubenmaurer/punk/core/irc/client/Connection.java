@@ -2,6 +2,8 @@ package de.rubenmaurer.punk.core.irc.client;
 
 import akka.actor.ActorRef;
 import akka.io.TcpMessage;
+import de.rubenmaurer.punk.core.irc.PunkServer;
+import de.rubenmaurer.punk.core.irc.messages.Chat;
 import de.rubenmaurer.punk.core.irc.messages.ChatMessage;
 import de.rubenmaurer.punk.core.irc.messages.MessageBuilder;
 import de.rubenmaurer.punk.core.irc.messages.WhoIs;
@@ -147,26 +149,29 @@ public class Connection {
     /**
      * Send message to another user.
      *
-     * @param nickname the user to chat with
+     * @param target the user to Chat with
      * @param message the message to send
      */
-    public void chat(String nickname, String message) {
-        for (Connection con : ConnectionManager.connections) {
-            if (con.nickname.equals(nickname)) {
-                write(ChatMessage.create(con.getConnection(), nickname, message, this.nickname, ChatMessage.Type.PRIVMSG, hostname));
-                return;
+    public void chat(String target, String message) {
+        if (!target.startsWith("#")) {
+            for (Connection con : ConnectionManager.connections) {
+                if (con.nickname.equals(target)) {
+                    write(ChatMessage.create(con.getConnection(), target, message, this.nickname, ChatMessage.Type.PRIVMSG, hostname));
+                    return;
+                }
             }
+
+            write(Notification.get(Notification.Error.ERR_NOSUCHNICK, new String[]{target, hostname}));
+            return;
         }
 
-        write(Notification.get(Notification.Error.ERR_NOSUCHNICK,
-                new String[] { nickname, hostname })
-        );
+        PunkServer.getChannelManager().tell(MessageBuilder.chat(target, Chat.Type.CHANNEL, message), connection);
     }
 
     /**
      * Send message to another user.
      *
-     * @param nickname the user to chat with
+     * @param nickname the user to Chat with
      * @param message the message to send
      */
     public void notice(String nickname, String message) {
@@ -263,5 +268,10 @@ public class Connection {
      */
     public static Connection create(ActorRef connection, String hostname) {
         return new Connection(connection, hostname);
+    }
+
+    public void relay(Chat chat) {
+        write(Notification.get(Notification.Reply.RPL_PRIVMSG,
+                new String[]{ nickname, hostname, chat.getTarget(), chat.getMessage() }));
     }
 }
