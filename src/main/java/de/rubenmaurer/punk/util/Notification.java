@@ -31,7 +31,12 @@ public class Notification {
         RPL_MYINFO,
         RPL_PRIVMSG,
         RPL_NICKCHANGE,
-        RPL_WHOISUSER
+        RPL_WHOISUSER,
+        RPL_NOTICE,
+        RPL_JOIN,
+        RPL_TOPIC,
+        RPL_NAMREPLY,
+        RPL_ENDOFNAMES
     }
 
     private Notification() {
@@ -47,7 +52,7 @@ public class Notification {
     public static String get(Error type, String[] values) {
         if (type.equals(Error.ERR_UNKNOWNCOMMAND))
             return Template.get("ERR_UNKNOWNCOMMAND").multiple(
-                    new String[] {"client", "command"}, values);
+                    new String[] {"host", "command"}, values);
 
         if (type.equals(Error.ERR_NICKNAMEINUSE))
             return Template.get("ERR_NICKNAMEINUSE").multiple(
@@ -60,12 +65,12 @@ public class Notification {
         if (type.equals(Error.ERROR))
             return Template.get("ERROR").multiple(
                     new String[] { "host", "message" },
-                    new String[] { Settings.hostname(), values[0] });
+                    new String[] { values[1], values[0] });
 
         if (type.equals(Error.ERR_NOSUCHNICK))
             return Template.get("ERR_NOSUCHNICK").multiple(
                     new String[]{ "host", "nick" },
-                    new String[]{ Settings.hostname(), values[0] });
+                    new String[]{ values[1], values[0] });
 
         if (type.equals(Error.ERR_NOMOTD))
             return Template.get("ERR_NOMOTD").single("host", Settings.hostname());
@@ -129,13 +134,37 @@ public class Notification {
         if (type.equals(Reply.RPL_PRIVMSG))
             return Template.get("RPL_PRIVMSG").multiple(
                     new String[]{ "sender", "host", "target", "message" },
-                    new String[]{ values[0], Settings.hostname(), values[1], values[2] });
+                    new String[]{ values[0], values[3], values[1], values[2] });
 
         if (type.equals(Reply.RPL_WHOISUSER))
             return Template.get("RPL_WHOISUSER").multiple(
                     new String[] { "nick", "user", "host", "real" },
-                    new String[] { values[0], values[1], Settings.hostname(), values[3] }
-            );
+                    new String[] { values[0], values[1], Settings.hostname(), values[3] });
+
+        if (type.equals(Reply.RPL_NOTICE))
+            return Template.get("RPL_NOTICE").multiple(
+                    new String[]{ "sender", "host", "target", "message" },
+                    new String[]{ values[0], values[3], values[1], values[2] });
+
+        if (type.equals(Reply.RPL_JOIN))
+            return Template.get("RPL_JOIN").multiple(
+                    new String[]{ "nickname", "host", "channel" },
+                    new String[]{ values[0], values[1], values[2] });
+
+        if (type.equals(Reply.RPL_TOPIC))
+            return Template.get("RPL_TOPIC").multiple(
+                    new String[]{ "server", "nick", "channel", "topic" },
+                    new String[]{ Settings.hostname(), values[0], values[1], values[2] });
+
+        if (type.equals(Reply.RPL_NAMREPLY))
+            return Template.get("RPL_NAMREPLY").multiple(
+                    new String[]{ "server", "nick", "channel", "users" },
+                    new String[]{ Settings.hostname(), values[0], values[1], values[2] });
+
+        if (type.equals(Reply.RPL_ENDOFNAMES))
+            return Template.get("RPL_ENDOFNAMES").multiple(
+                    new String[]{ "server", "nick", "channel" },
+                    new String[]{ Settings.hostname(), values[0], values[1] });
 
         return "";
     }

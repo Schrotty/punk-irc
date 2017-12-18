@@ -1,0 +1,46 @@
+============================= test session starts =============================
+platform win32 -- Python 3.6.3, pytest-3.3.1, py-1.5.2, pluggy-0.6.0
+rootdir: I:\Projekte\punk-irc, inifile:
+plugins: json-0.4.0
+collected 0 items / 1 errors
+
+=================================== ERRORS ====================================
+______________________________ ERROR collecting  ______________________________
+c:\users\ruben\appdata\local\programs\python\python36-32\lib\site-packages\_pytest\config.py:328: in _getconftestmodules
+    return self._path2confmods[path]
+E   KeyError: local('I:\\Projekte\\punk-irc\\target\\test-classes\\chirc')
+
+During handling of the above exception, another exception occurred:
+c:\users\ruben\appdata\local\programs\python\python36-32\lib\site-packages\_pytest\config.py:359: in _importconftest
+    return self._conftestpath2mod[conftestpath]
+E   KeyError: local('I:\\Projekte\\punk-irc\\target\\test-classes\\chirc\\conftest.py')
+
+During handling of the above exception, another exception occurred:
+c:\users\ruben\appdata\local\programs\python\python36-32\lib\site-packages\_pytest\config.py:365: in _importconftest
+    mod = conftestpath.pyimport()
+c:\users\ruben\appdata\local\programs\python\python36-32\lib\site-packages\py\_path\local.py:686: in pyimport
+    raise self.ImportMismatchError(modname, modfile, self)
+E   py._path.local.LocalPath.ImportMismatchError: ('chirc.conftest', 'I:\\Projekte\\punk-irc\\src\\test\\chirc\\conftest.py', local('I:\\Projekte\\punk-irc\\target\\test-classes\\chirc\\conftest.py'))
+
+During handling of the above exception, another exception occurred:
+c:\users\ruben\appdata\local\programs\python\python36-32\lib\site-packages\py\_path\common.py:377: in visit
+    for x in Visitor(fil, rec, ignore, bf, sort).gen(self):
+c:\users\ruben\appdata\local\programs\python\python36-32\lib\site-packages\py\_path\common.py:429: in gen
+    for p in self.gen(subdir):
+c:\users\ruben\appdata\local\programs\python\python36-32\lib\site-packages\py\_path\common.py:429: in gen
+    for p in self.gen(subdir):
+c:\users\ruben\appdata\local\programs\python\python36-32\lib\site-packages\py\_path\common.py:418: in gen
+    dirs = self.optsort([p for p in entries
+c:\users\ruben\appdata\local\programs\python\python36-32\lib\site-packages\py\_path\common.py:419: in <listcomp>
+    if p.check(dir=1) and (rec is None or rec(p))])
+c:\users\ruben\appdata\local\programs\python\python36-32\lib\site-packages\_pytest\main.py:723: in _recurse
+    ihook = self.gethookproxy(path)
+c:\users\ruben\appdata\local\programs\python\python36-32\lib\site-packages\_pytest\main.py:627: in gethookproxy
+    my_conftestmodules = pm._getconftestmodules(fspath)
+c:\users\ruben\appdata\local\programs\python\python36-32\lib\site-packages\_pytest\config.py:342: in _getconftestmodules
+    mod = self._importconftest(conftestpath)
+c:\users\ruben\appdata\local\programs\python\python36-32\lib\site-packages\_pytest\config.py:367: in _importconftest
+    raise ConftestImportFailure(conftestpath, sys.exc_info())
+E   _pytest.config.ConftestImportFailure: ImportMismatchError('chirc.conftest', 'I:\\Projekte\\punk-irc\\src\\test\\chirc\\conftest.py', local('I:\\Projekte\\punk-irc\\target\\test-classes\\chirc\\conftest.py'))
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 errors during collection !!!!!!!!!!!!!!!!!!!
+=========================== 1 error in 0.44 seconds ===========================

@@ -11,9 +11,6 @@ import de.rubenmaurer.punk.core.irc.parser.Parser;
 import de.rubenmaurer.punk.core.reporter.Report;
 import de.rubenmaurer.punk.util.Template;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 /**
  * Actor for managing all parts for the irc-server.
  *
@@ -54,6 +51,15 @@ public class PunkServer extends AbstractActor {
      */
     public static ActorRef getConnectionManager() {
         return connectionManager;
+    }
+
+    /**
+     * Get the channel-manager.
+     *
+     * @return the channel manager
+     */
+    public static ActorRef getChannelManager() {
+        return channelManager;
     }
 
     /**

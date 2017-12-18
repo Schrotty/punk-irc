@@ -331,7 +331,7 @@ class IRCSession():
                            long_param_re = "They aren't on that channel")
             
             
-    # Message/reply getters
+    # ChatMessage/reply getters
 
     def get_reply(self, client, expect_code = None, expect_nick = None, expect_nparams = None,
                   expect_short_params = None, long_param_re = None, long_param_values = None,
@@ -377,7 +377,7 @@ class IRCSession():
                       long_param_re = None, long_param_values = None):
         
         if expect_prefix != None and expect_prefix:
-            assert msg.prefix is not None, "Expected a prefix, but got none.\nMessage: {}".format(msg.raw(bookends=True))
+            assert msg.prefix is not None, "Expected a prefix, but got none.\nChatMessage: {}".format(msg.raw(bookends=True))
             
         if expect_cmd != None:
             self._assert_equals(msg.cmd, expect_cmd, 
@@ -498,7 +498,7 @@ class IRCSession():
             r.append(reply)
         else:
             reply = self.get_reply(client, expect_code = replies.RPL_MOTDSTART, expect_nick = nick, 
-                                   expect_nparams = 1, long_param_re = "- .* Message of the day - ")
+                                   expect_nparams = 1, long_param_re = "- .* ChatMessage of the day - ")
             r.append(reply)
             
             motd_lines = expect_motd.strip().split("\n")

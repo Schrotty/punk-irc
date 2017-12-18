@@ -49,7 +49,7 @@ class IRCPrefix(object):
 class IRCMessage(object):
     def __init__(self, s):
         if s[-2:] != "\r\n":
-            raise MessageNotWellFormedException("Message does not end in \\r\\n", s)
+            raise MessageNotWellFormedException("ChatMessage does not end in \\r\\n", s)
         
         self._s = s[:-2]
         
@@ -60,7 +60,7 @@ class IRCMessage(object):
                
         if fields[0][0] == ":":
             if len(fields) == 1: 
-                raise MessageNotWellFormedException("Message contains a prefix but no command.", s)
+                raise MessageNotWellFormedException("ChatMessage contains a prefix but no command.", s)
             self.prefix = IRCPrefix(fields[0])
             self.cmd = fields[1]
             p = 2

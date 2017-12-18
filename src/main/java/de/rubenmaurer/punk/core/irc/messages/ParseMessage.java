@@ -1,15 +1,15 @@
-package de.rubenmaurer.punk.core.irc.parser;
+package de.rubenmaurer.punk.core.irc.messages;
 
 import de.rubenmaurer.punk.core.irc.client.Connection;
 
 /**
- * Message type for parsing.
+ * ParserMessage type for parsing.
  *
  * @author Ruben Maurer
  * @version 1.0
  * @since 1.0
  */
-public class Message {
+public class ParseMessage {
 
     /**
      * The message to parse.
@@ -45,7 +45,7 @@ public class Message {
      * @param message the message
      * @param connection the connection
      */
-    private Message(String message, Connection connection) {
+    private ParseMessage(String message, Connection connection) {
         this.connection = connection;
         this.message = message;
     }
@@ -57,7 +57,7 @@ public class Message {
      * @param connection the connection
      * @return the created message
      */
-    public static Message create(String message, Connection connection) {
-        return new Message(message, connection);
+    public static ParseMessage create(String message, Connection connection) {
+        return new ParseMessage(message, connection);
     }
 }

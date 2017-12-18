@@ -1,4 +1,4 @@
-package de.rubenmaurer.punk.core.irc.client;
+package de.rubenmaurer.punk.core.irc.messages;
 
 import akka.actor.ActorRef;
 import de.rubenmaurer.punk.util.Notification;
@@ -10,7 +10,12 @@ import de.rubenmaurer.punk.util.Notification;
  * @version 1.0
  * @since 1.0
  */
-public class Message {
+public class ChatMessage {
+
+    /**
+     * Type of the chat message.
+     */
+    private Type type;
 
     /**
      * The target actor.
@@ -69,6 +74,20 @@ public class Message {
     }
 
     /**
+     * The hostname
+     */
+    private String hostname;
+
+    /**
+     * Get the hostname
+     *
+     * @return the hostname
+     */
+    public String getHostname() {
+        return hostname;
+    }
+
+    /**
      * Constructor for a new message object.
      *
      * @param target the target actor
@@ -76,11 +95,13 @@ public class Message {
      * @param message the message
      * @param sender the senders nickname
      */
-    private Message(ActorRef target, String nickname, String message, String sender) {
+    private ChatMessage(ActorRef target, String nickname, String message, String sender, Type type, String hostname) {
         this.target = target;
         this.message = message;
         this.nickname = nickname;
         this.sender = sender;
+        this.type = type;
+        this.hostname = hostname;
     }
 
     /**
@@ -92,8 +113,8 @@ public class Message {
      * @param sender the senders nickname
      * @return the created message
      */
-    public static Message create(ActorRef target, String nickname, String message, String sender) {
-        return new Message(target, nickname, message, sender);
+    public static ChatMessage create(ActorRef target, String nickname, String message, String sender, Type type, String hostname) {
+        return new ChatMessage(target, nickname, message, sender, type, hostname);
     }
 
     /**
@@ -103,7 +124,17 @@ public class Message {
      */
     @Override
     public String toString() {
-        return Notification.get(Notification.Reply.RPL_PRIVMSG,
-                new String[] { sender, nickname, message });
+        if (type.equals(Type.PRIVMSG)) {
+            return Notification.get(Notification.Reply.RPL_PRIVMSG,
+                    new String[]{sender, nickname, message, hostname});
+        }
+
+        return Notification.get(Notification.Reply.RPL_NOTICE,
+                new String[]{sender, nickname, message, hostname});
+    }
+
+    public enum Type {
+        PRIVMSG,
+        NOTICE
     }
 }

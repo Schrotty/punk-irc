@@ -5,6 +5,7 @@ startSystem(system) ::= "--- Starting <system> ---"
 //Util strings
 quitMessage() ::= "Client Quit"
 pong() ::= "PONG"
+defaultChannelTopic() ::= "I'm a channel with no topic!"
 
 //Actor messages
 parserWorkStart() ::= "START_PARSER_WORKER"
@@ -16,13 +17,18 @@ RPL_CREATED(host, date) ::= ":<host> 003 :This server was created <date>"
 RPL_MYINFO(host, servername, version) ::= ":<host> 004 : <servername> <version> ao mtov"
 RPL_WHOISUSER(nick, user, host, real) ::= ":<host> 311 <nick> <user> <host> * :<real>"
 RPL_WHOISSERVER(nick, server, host, info) ::= ":<host> 312 <nick> <server> :<info>"
+RPL_TOPIC(server, nick, channel, topic) ::= ":<server> 332 <nick> <channel> :<topic>"
+RPL_NAMREPLY(server, nick, channel, users) ::= ":<server> 353 <nick> = <channel> :<users>"
+RPL_ENDOFNAMES(server, nick, channel) ::= ":<server> 366 <nick> <channel> :END of NAMES list"
 
 //Subs
 RPL_NICKCHANGE(old, host, new) ::= ":<old>!<host> NICK <new>"
-RPL_PRIVMSG(sender, host, target, message) ::= ":<sender>!<host> PRIVMSG <target> :<message>"
+RPL_PRIVMSG(sender, host, target, message) ::= ":<sender>!<sender>@<host> PRIVMSG <target> :<message>"
+RPL_NOTICE(sender, host, target, message) ::= ":<sender>!<sender>@<host> NOTICE <target> :<message>"
+RPL_JOIN(nickname, host, channel) ::= ":<nickname>!<nickname>@<host> JOIN <channel>"
 
 //Errors
-ERR_UNKNOWNCOMMAND(client, command) ::= "<client> <command> :Unknown command."
+ERR_UNKNOWNCOMMAND(host, command) ::= "<host> <command> :Unknown command."
 ERR_NICKNAMEINUSE(nick, host) ::= ":<host> 433 * <nick> :Nickname is already in use."
 ERR_ALREADYREGISTRED(host)  ::= ":<host> 462 :Unauthorized command (already registered)"
 ERR_NOSUCHNICK(host, nick) ::= ":<host> 401 <nick> :No such nick/ channel"

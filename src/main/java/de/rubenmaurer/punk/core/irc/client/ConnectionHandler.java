@@ -6,9 +6,11 @@ import akka.actor.Props;
 import akka.io.Tcp;
 import akka.io.TcpMessage;
 import akka.util.ByteString;
-
 import de.rubenmaurer.punk.core.irc.PunkServer;
-import de.rubenmaurer.punk.core.irc.parser.Message;
+import de.rubenmaurer.punk.core.irc.messages.ChatMessage;
+import de.rubenmaurer.punk.core.irc.messages.Join;
+import de.rubenmaurer.punk.core.irc.messages.WhoIs;
+import de.rubenmaurer.punk.core.irc.messages.ParseMessage;
 import de.rubenmaurer.punk.core.reporter.Report;
 
 import static de.rubenmaurer.punk.core.Guardian.reporter;
@@ -28,17 +30,31 @@ public class ConnectionHandler extends AbstractActor {
     private ActorRef remote;
 
     /**
+     * The remote hostname.
+     */
+    private final String hostname;
+
+    /**
      * The used connection object for storing data.
      */
     private Connection connection;
+
+    /**
+     * Contructor for a new ConnectionHandler
+     *
+     * @param hostname the hostname
+     */
+    public ConnectionHandler(String hostname) {
+        this.hostname = hostname;
+    }
 
     /**
      * Get needed props for creating a new actor.
      *
      * @return the props for creating
      */
-    public static Props props() {
-        return Props.create(ConnectionHandler.class);
+    public static Props props(String hostname) {
+        return Props.create(ConnectionHandler.class, hostname);
     }
 
     /**
@@ -68,12 +84,12 @@ public class ConnectionHandler extends AbstractActor {
                 .match(Tcp.Received.class, msg -> {
                     if (connection == null && remote == null) {
                         remote = getSender();
-                        connection = Connection.create(getSelf());
+                        connection = Connection.create(getSelf(), hostname);
                         ConnectionManager.connections.add(connection);
                     }
 
                     System.out.println(msg.data().decodeString("US-ASCII"));
-                    PunkServer.getParser().tell(Message.create(msg.data().decodeString("US-ASCII"), connection), self());
+                    PunkServer.getParser().tell(ParseMessage.create(msg.data().decodeString("US-ASCII"), connection), self());
                 })
                 .match(Tcp.ConnectionClosed.class, msg -> getContext().stop(getSelf()))
                 .match(String.class, s -> remote.tell(TcpMessage.write(ByteString.fromString(s.intern() + '\r' + '\n'), TcpMessage.noAck()), getSelf()))
@@ -83,11 +99,12 @@ public class ConnectionHandler extends AbstractActor {
 
                     connection = con;
                 })
-                .match(de.rubenmaurer.punk.core.irc.client.Message.class, s -> s.getTarget().tell(s.toString(), self()))
-                .match(de.rubenmaurer.punk.core.irc.messages.WhoIs.class, msg -> {
+                .match(ChatMessage.class, s -> s.getTarget().tell(s.toString(), self()))
+                .match(WhoIs.class, msg -> {
                     if (msg.isRequest()) context().parent().tell(msg, self());
                     if (!msg.isRequest()) connection.finishRequest(msg);
                 })
+                .match(Join.class, j -> PunkServer.getChannelManager().tell(j, self()))
                 .build();
     }
 }

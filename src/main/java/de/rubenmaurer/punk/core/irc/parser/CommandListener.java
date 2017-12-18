@@ -11,6 +11,7 @@ import de.rubenmaurer.punk.util.Template;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * CommandListener for performing actions based on the listened command.
@@ -49,7 +50,12 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void enterChatLine(IRCParser.ChatLineContext ctx) {
-
+        if (ctx.commands().size() == 0) {
+            if (StringUtils.isAllUpperCase(ctx.WORD(0).getText())) {
+                connection.write(Notification.get(Notification.Error.ERR_UNKNOWNCOMMAND,
+                        new String[]{connection.getHostname(), ctx.WORD(0).getText()}));
+            }
+        }
     }
 
     /**
@@ -189,8 +195,7 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void enterPrivmsgCommand(IRCParser.PrivmsgCommandContext ctx) {
-        connection.chat(ctx.user().getText(),
-                ctx.message() == null ? "" : ctx.message().getText());
+        connection.chat(ctx.user().getText(), ctx.message() == null ? "" : ctx.message().getText());
     }
 
     /**
@@ -200,6 +205,27 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void exitPrivmsgCommand(IRCParser.PrivmsgCommandContext ctx) {
+
+    }
+
+    /**
+     * Enter a parse tree produced by {@link IRCParser#notice}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void enterNotice(IRCParser.NoticeContext ctx) {
+        connection.notice(ctx.user().getText(),
+                ctx.message() == null ? "" : ctx.message().getText());
+    }
+
+    /**
+     * Exit a parse tree produced by {@link IRCParser#notice}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void exitNotice(IRCParser.NoticeContext ctx) {
 
     }
 
@@ -270,6 +296,46 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void exitWhois(IRCParser.WhoisContext ctx) {
+
+    }
+
+    /**
+     * Enter a parse tree produced by {@link IRCParser#lusers}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void enterLusers(IRCParser.LusersContext ctx) {
+
+    }
+
+    /**
+     * Exit a parse tree produced by {@link IRCParser#lusers}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void exitLusers(IRCParser.LusersContext ctx) {
+
+    }
+
+    /**
+     * Enter a parse tree produced by {@link IRCParser#join}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void enterJoin(IRCParser.JoinContext ctx) {
+        connection.join(ctx.WORD().getText());
+    }
+
+    /**
+     * Exit a parse tree produced by {@link IRCParser#join}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void exitJoin(IRCParser.JoinContext ctx) {
 
     }
 
@@ -374,6 +440,26 @@ public class CommandListener implements IRCListener {
     }
 
     /**
+     * Enter a parse tree produced by {@link IRCParser#target}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void enterTarget(IRCParser.TargetContext ctx) {
+
+    }
+
+    /**
+     * Exit a parse tree produced by {@link IRCParser#target}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void exitTarget(IRCParser.TargetContext ctx) {
+
+    }
+
+    /**
      * Enter a parse tree produced by {@link IRCParser#delimiter}.
      *
      * @param ctx the parse tree
@@ -400,7 +486,7 @@ public class CommandListener implements IRCListener {
 
     @Override
     public void visitErrorNode(ErrorNode errorNode) {
-        connection.write(Notification.get(Notification.Error.ERR_UNKNOWNCOMMAND, new String[] { "schrotty", errorNode.getText() }));
+
     }
 
     @Override

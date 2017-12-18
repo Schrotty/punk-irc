@@ -22,7 +22,7 @@ options
  */
 chatLine            : (commands | WORD | WHITESPACE)+ NEWLINE?;
 
-commands            : (nickCommand | userCommand | capCommand | quitCommand | privmsgCommand | ping | pong | motd | whois);
+commands            : (nickCommand | userCommand | capCommand | quitCommand | privmsgCommand | ping | pong | motd | whois | notice | lusers | join);
 
 initCommand         : (capCommand | nickCommand | userCommand)+ NEWLINE?;
 
@@ -36,6 +36,8 @@ quitCommand         : 'QUIT' WHITESPACE DELIMITER message? NEWLINE?;
 
 privmsgCommand      : 'PRIVMSG' WHITESPACE user WHITESPACE DELIMITER message? NEWLINE?;
 
+notice              : 'NOTICE' WHITESPACE user WHITESPACE DELIMITER message? NEWLINE?;
+
 ping                : 'PING' NEWLINE?;
 
 pong                : 'PONG' NEWLINE?;
@@ -43,6 +45,10 @@ pong                : 'PONG' NEWLINE?;
 motd                : 'MOTD' NEWLINE?;
 
 whois               : 'WHOIS' WHITESPACE user NEWLINE?;
+
+lusers              : 'LUSERS' NEWLINE?;
+
+join                : 'JOIN' WHITESPACE WORD NEWLINE?;
 
 /* simples */
 realname            : (WORD | WHITESPACE)+;

@@ -69,6 +69,12 @@ public class ConnectionManager extends AbstractActor {
         return false;
     }
 
+    /**
+     * Get the a connection by its name.
+     *
+     * @param nickname the name to search for
+     * @return the connection or null
+     */
     private static Connection getConnection(String nickname) {
         for (Connection connection: connections) {
             if (connection.getNickname().equals(nickname)) return connection;
@@ -77,6 +83,12 @@ public class ConnectionManager extends AbstractActor {
         return null;
     }
 
+    /**
+     * Replies to a whoIs message.
+     *
+     * @param message the whoIs message
+     * @return the answer
+     */
     private Message whoIs(WhoIs message) {
         if (hasNickname(message.getNickname())) {
             Connection connection = getConnection(message.getNickname());
@@ -110,7 +122,7 @@ public class ConnectionManager extends AbstractActor {
                 .match(Tcp.CommandFailed.class, msg -> getContext().stop(getSelf()))
                 .match(Tcp.Connected.class, conn -> {
                     manager.tell(conn, getSelf());
-                    getSender().tell(TcpMessage.register(getContext().actorOf(ConnectionHandler.props())), getSelf());
+                    getSender().tell(TcpMessage.register(getContext().actorOf(ConnectionHandler.props(conn.remoteAddress().getHostName()))), getSelf());
                 })
                 .match(WhoIs.class, msg -> sender().tell(whoIs(msg), self()))
                 .build();

@@ -8,6 +8,7 @@ import de.rubenmaurer.punk.IRCListener;
 import de.rubenmaurer.punk.IRCParser;
 import de.rubenmaurer.punk.core.Guardian;
 import de.rubenmaurer.punk.core.irc.client.Connection;
+import de.rubenmaurer.punk.core.irc.messages.ParseMessage;
 import de.rubenmaurer.punk.core.reporter.Report;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -76,7 +77,7 @@ public class Worker extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(Message.class, msg -> {
+                .match(ParseMessage.class, msg -> {
                     handler = msg.getConnection().getConnection();
                     Arrays.stream(msg.getMessage().split("\r\n")).forEach(arg -> parse(msg.getConnection(), arg));
                 })
