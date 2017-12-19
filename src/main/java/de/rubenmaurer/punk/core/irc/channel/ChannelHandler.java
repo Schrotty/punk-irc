@@ -3,8 +3,7 @@ package de.rubenmaurer.punk.core.irc.channel;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import de.rubenmaurer.punk.core.irc.messages.Chat;
-import de.rubenmaurer.punk.core.irc.messages.Join;
+import de.rubenmaurer.punk.core.irc.messages.impl.Join;
 import de.rubenmaurer.punk.core.reporter.Report;
 import de.rubenmaurer.punk.util.Notification;
 import de.rubenmaurer.punk.util.Template;
@@ -19,9 +18,14 @@ import static de.rubenmaurer.punk.core.Guardian.reporter;
  *
  * @author Ruben Maurer
  * @version 1.0
- * @since 1.0
+ * @since 1.1
  */
 public class ChannelHandler extends AbstractActor {
+
+    /**
+     * The channel name
+     */
+    private String name;
 
     /**
      * The channel topic.
@@ -36,10 +40,20 @@ public class ChannelHandler extends AbstractActor {
     /**
      * Get the props for a new actor.
      *
+     * @param name the channel name
      * @return the props
      */
-    public static Props props() {
-        return Props.create(ChannelHandler.class);
+    public static Props props(String name) {
+        return Props.create(ChannelHandler.class, name);
+    }
+
+    /**
+     * Constructor for a channelHandler.
+     *
+     * @param name the name of the channel
+     */
+    public ChannelHandler(String name) {
+        this.name = name;
     }
 
     /**
@@ -69,13 +83,13 @@ public class ChannelHandler extends AbstractActor {
         }
 
         newOne.tell(Notification.get(Notification.Reply.RPL_TOPIC,
-                new String[]{ joinMessage.getNickname(), self().path().name(), topic }), self());
+                new String[]{ joinMessage.getNickname(), name, topic }), self());
 
         newOne.tell(Notification.get(Notification.Reply.RPL_NAMREPLY,
-                new String[]{ joinMessage.getNickname(), self().path().name(), builder.toString() }), self());
+                new String[]{ joinMessage.getNickname(), name, builder.toString() }), self());
 
         newOne.tell(Notification.get(Notification.Reply.RPL_ENDOFNAMES,
-                new String[]{ joinMessage.getNickname(), self().path().name() }), self());
+                new String[]{ joinMessage.getNickname(), name }), self());
     }
 
     /**
@@ -83,9 +97,10 @@ public class ChannelHandler extends AbstractActor {
      *
      * @param chat the chat message
      */
-    private void chat(Chat chat) {
+    private void chat(String chat) {
         for (Map.Entry<String, ActorRef> entry : connections.entrySet()) {
-            if (entry.getValue() != sender()) entry.getValue().tell(chat, self());
+            if (entry.getValue() != sender())
+                entry.getValue().tell(chat, self());
         }
     }
 
@@ -98,7 +113,7 @@ public class ChannelHandler extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(Join.class, this::join)
-                .match(Chat.class, this::chat)
+                .match(String.class, this::chat)
                 .build();
     }
 }

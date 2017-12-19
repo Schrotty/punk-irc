@@ -5,7 +5,6 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import de.rubenmaurer.punk.Punk;
 import de.rubenmaurer.punk.core.irc.PunkServer;
-import de.rubenmaurer.punk.core.irc.messages.Info;
 import de.rubenmaurer.punk.core.reporter.Report;
 import de.rubenmaurer.punk.core.reporter.Reporter;
 import de.rubenmaurer.punk.util.Template;
@@ -75,7 +74,7 @@ public class Guardian extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(Info.READY.getClass(), s -> systemReady())
+                .matchEquals(Template.get("subSysReady").toString(), s -> systemReady())
                 .build();
     }
 }

@@ -5,38 +5,24 @@ package de.rubenmaurer.punk.core.irc.messages;
  *
  * @author Ruben Maurer
  * @version 1.0
- * @since 1.0
+ * @since 1.1
  */
 public abstract class Message {
 
     /**
      * Is this a request?
      */
-    boolean request = true;
+    protected boolean request = true;
 
     /**
      * Is this an error?
      */
-    boolean error = false;
-
-    /**
-     * Is this message empty?
-     */
-    boolean empty = true;
+    protected boolean error = false;
 
     /**
      * The error message.
      */
-    String errorMessage;
-
-    /**
-     * Is a request?
-     *
-     * @return is a request?
-     */
-    public boolean isRequest() {
-        return request;
-    }
+    protected String errorMessage;
 
     /**
      * Has error?
@@ -45,15 +31,6 @@ public abstract class Message {
      */
     public boolean hasError() {
         return error;
-    }
-
-    /**
-     * Is this message empty?
-     *
-     * @return is emty?
-     */
-    public boolean isEmpty() {
-        return empty;
     }
 
     /**

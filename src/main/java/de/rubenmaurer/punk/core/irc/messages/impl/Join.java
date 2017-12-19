@@ -1,4 +1,6 @@
-package de.rubenmaurer.punk.core.irc.messages;
+package de.rubenmaurer.punk.core.irc.messages.impl;
+
+import de.rubenmaurer.punk.core.irc.messages.Message;
 
 /**
  * A IRC Join ChatMessage.
@@ -12,18 +14,17 @@ public class Join extends Message {
     /**
      * The used nickname.
      */
-    private final String nickname;
+    private String nickname;
 
     /**
      * The channel to join.
      */
-    private final String channel;
+    private String channel;
 
     /**
      * The own hostname.
      */
-    private final String hostname;
-
+    private String hostname;
 
     /**
      * Get the nickname.
@@ -52,7 +53,7 @@ public class Join extends Message {
         return hostname;
     }
 
-    Join(String channel) {
+    public Join(String channel) {
         this.channel = channel;
     }
 
@@ -63,7 +64,7 @@ public class Join extends Message {
      * @param channel the channel to join
      * @param hostname the hostname
      */
-    Join(String nickname, String channel, String hostname) {
+    public Join(String nickname, String channel, String hostname) {
         this.nickname = nickname;
         this.channel = channel;
         this.hostname = hostname;

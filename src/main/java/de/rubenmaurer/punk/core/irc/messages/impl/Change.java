@@ -1,4 +1,6 @@
-package de.rubenmaurer.punk.core.irc.messages;
+package de.rubenmaurer.punk.core.irc.messages.impl;
+
+import de.rubenmaurer.punk.core.irc.messages.Message;
 
 public class Change extends Message {
     public enum Field {
@@ -6,8 +8,8 @@ public class Change extends Message {
         REALNAME
     }
 
-    public final Field field;
-    public final String value;
+    private final Field field;
+    private final String value;
 
     public Field getField() {
         return field;
@@ -17,15 +19,7 @@ public class Change extends Message {
         return value;
     }
 
-    private Field getField() {
-        return field;
-    }
-
-    private String getValue() {
-        return value;
-    }
-
-    Change(Field field, String value) {
+    public Change(Field field, String value) {
         this.field = field;
         this.value = value;
     }

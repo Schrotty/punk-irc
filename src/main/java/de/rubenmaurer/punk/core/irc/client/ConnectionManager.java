@@ -6,22 +6,23 @@ import akka.actor.Props;
 import akka.io.Tcp;
 import akka.io.TcpMessage;
 import de.rubenmaurer.punk.core.Guardian;
-import de.rubenmaurer.punk.core.irc.messages.Message;
 import de.rubenmaurer.punk.core.irc.messages.MessageBuilder;
-import de.rubenmaurer.punk.core.irc.messages.WhoIs;
+import de.rubenmaurer.punk.core.irc.messages.impl.WhoIs;
 import de.rubenmaurer.punk.core.reporter.Report;
 import de.rubenmaurer.punk.util.Notification;
 import de.rubenmaurer.punk.util.Settings;
 
 import java.net.InetSocketAddress;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
+
+import static akka.pattern.PatternsCS.ask;
 
 /**
  * Actor for managing all established connections.
  *
  * @author Ruben Maurer
- * @version 1.0
+ * @version 1.2
  * @since 1.0
  */
 public class ConnectionManager extends AbstractActor {
@@ -34,7 +35,7 @@ public class ConnectionManager extends AbstractActor {
     /**
      * List of all established connections.
      */
-    static List<Connection> connections = new LinkedList<>();
+    static HashMap<String ,ActorRef> connections = new HashMap<>();
 
     /**
      * Create a new connection-manager object.
@@ -62,41 +63,31 @@ public class ConnectionManager extends AbstractActor {
      * @return has connection with nickname?
      */
     public static boolean hasNickname(String nickname) {
-        for (Connection connection: connections) {
-            if (connection.getNickname().equals(nickname)) return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Get the a connection by its name.
-     *
-     * @param nickname the name to search for
-     * @return the connection or null
-     */
-    private static Connection getConnection(String nickname) {
-        for (Connection connection: connections) {
-            if (connection.getNickname().equals(nickname)) return connection;
-        }
-
-        return null;
+        return connections.get(nickname) != null;
     }
 
     /**
      * Replies to a whoIs message.
      *
      * @param message the whoIs message
-     * @return the answer
      */
-    private Message whoIs(WhoIs message) {
-        if (hasNickname(message.getNickname())) {
-            Connection connection = getConnection(message.getNickname());
+    private void whoIs(WhoIs message) {
+        try {
+            if (hasNickname(message.getNickname())) {
+                if (connections.get(message.getNickname()) != null) {
+                    CompletableFuture<Object> result = ask(sender(), 42, 1000).toCompletableFuture();
 
-            if (connection != null) return MessageBuilder.whoIs(connection.getNickname(), connection.getRealname());
+                    sender().tell(MessageBuilder.whoIs(message.getNickname(), result.get().toString()), self());
+                    return;
+                }
+            }
+        } catch (Exception exception) {
+            Guardian.reporter().tell(Report.create(Report.Type.ERROR, exception.getMessage()), self());
         }
 
-        return MessageBuilder.whoIs("", "", Notification.get(Notification.Error.ERR_NOSUCHNICK, message.getNickname()));
+        sender().tell(MessageBuilder.whoIs("", "", Notification.get(Notification.Error.ERR_NOSUCHNICK, new String[]{
+                Settings.hostname(), message.getNickname()
+        })), self());
     }
 
     /**
@@ -124,7 +115,7 @@ public class ConnectionManager extends AbstractActor {
                     manager.tell(conn, getSelf());
                     getSender().tell(TcpMessage.register(getContext().actorOf(ConnectionHandler.props(conn.remoteAddress().getHostName()))), getSelf());
                 })
-                .match(WhoIs.class, msg -> sender().tell(whoIs(msg), self()))
+                .match(WhoIs.class, this::whoIs)
                 .build();
     }
 }

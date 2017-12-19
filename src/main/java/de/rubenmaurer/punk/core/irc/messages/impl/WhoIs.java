@@ -1,4 +1,6 @@
-package de.rubenmaurer.punk.core.irc.messages;
+package de.rubenmaurer.punk.core.irc.messages.impl;
+
+import de.rubenmaurer.punk.core.irc.messages.Message;
 
 /**
  * A whoIs message for the IRC command 'WHOIS'.
@@ -42,7 +44,7 @@ public class WhoIs extends Message {
      *
      * @param nickname the nickname
      */
-    WhoIs(String nickname) {
+    public WhoIs(String nickname) {
         this.nickname = nickname;
     }
 
@@ -52,7 +54,7 @@ public class WhoIs extends Message {
      * @param nickname the nickname
      * @param realname the realname
      */
-    WhoIs(String nickname, String realname) {
+    public WhoIs(String nickname, String realname) {
         this.nickname = nickname;
         this.realname = realname;
         request = false;
@@ -65,7 +67,7 @@ public class WhoIs extends Message {
      * @param realname the realname
      * @param message the message
      */
-    WhoIs(String nickname, String realname, String message) {
+    public WhoIs(String nickname, String realname, String message) {
         this(nickname, realname);
         this.errorMessage = message;
         this.error = true;

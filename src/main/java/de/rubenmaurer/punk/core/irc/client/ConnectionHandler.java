@@ -7,11 +7,16 @@ import akka.io.Tcp;
 import akka.io.TcpMessage;
 import akka.util.ByteString;
 import de.rubenmaurer.punk.core.irc.PunkServer;
+import de.rubenmaurer.punk.core.irc.channel.ChannelManager;
 import de.rubenmaurer.punk.core.irc.messages.*;
+import de.rubenmaurer.punk.core.irc.messages.impl.*;
 import de.rubenmaurer.punk.core.reporter.Report;
 import de.rubenmaurer.punk.util.Notification;
 import de.rubenmaurer.punk.util.Settings;
 import de.rubenmaurer.punk.util.Template;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static de.rubenmaurer.punk.core.Guardian.reporter;
 
@@ -50,17 +55,13 @@ public class ConnectionHandler extends AbstractActor {
     private final String hostname;
 
     /**
-     * The used connection object for storing data.
-     */
-    private Connection connection;
-    private ConnectionHandler handler;
-
-    /**
      * Contructor for a new ConnectionHandler
      *
      * @param hostname the hostname
      */
     public ConnectionHandler(String hostname) {
+        this.nickname = "";
+        this.realname = "";
         this.hostname = hostname;
     }
 
@@ -79,7 +80,7 @@ public class ConnectionHandler extends AbstractActor {
      * @return is auth?
      */
     private boolean isOnline() {
-        return online; //TODO: Replace
+        return online;
     }
 
     /**
@@ -90,8 +91,8 @@ public class ConnectionHandler extends AbstractActor {
     public void setNickname(String nickname) {
         if (!ConnectionManager.hasNickname(nickname)) {
             if (isOnline()) {
-                remote.tell(Notification.get(Notification.Reply.RPL_NICKCHANGE,
-                        new String[] { this.nickname, nickname }), self());
+                write(Notification.get(Notification.Reply.RPL_NICKCHANGE,
+                        new String[] { this.nickname, nickname }));
             }
 
             this.nickname = nickname;
@@ -99,7 +100,7 @@ public class ConnectionHandler extends AbstractActor {
             return;
         }
 
-        remote.tell(Notification.get(Notification.Error.ERR_NICKNAMEINUSE, nickname), self());
+        write(Notification.get(Notification.Error.ERR_NICKNAMEINUSE, nickname));
     }
 
     /**
@@ -107,14 +108,14 @@ public class ConnectionHandler extends AbstractActor {
      *
      * @param realname the new real-name
      */
-    public void setRealname(String realname) {
+    void setRealname(String realname) {
         if(this.realname.isEmpty()) {
             this.realname = realname;
             tryLogin();
             return;
         }
 
-        remote.tell(Notification.get(Notification.Error.ERR_ALREADYREGISTRED, Settings.hostname()), self());
+        write(Notification.get(Notification.Error.ERR_ALREADYREGISTRED, Settings.hostname()));
     }
 
     /**
@@ -122,26 +123,53 @@ public class ConnectionHandler extends AbstractActor {
      */
     private void tryLogin() {
         if (!isOnline() && (!nickname.isEmpty() && !realname.isEmpty())) {
-            remote.tell(Notification.get(Notification.Reply.RPL_WELCOME,
-                    new String[] { nickname, realname, hostname }), self());
+            write(Notification.get(Notification.Reply.RPL_WELCOME,
+                    new String[] { nickname, realname, hostname }));
 
-            remote.tell(Notification.get(Notification.Reply.RPL_YOURHOST), self());
-            remote.tell(Notification.get(Notification.Reply.RPL_CREATED), self());
-            remote.tell(Notification.get(Notification.Reply.RPL_MYINFO), self());
+            write(Notification.get(Notification.Reply.RPL_YOURHOST));
+            write(Notification.get(Notification.Reply.RPL_CREATED));
+            write(Notification.get(Notification.Reply.RPL_MYINFO));
 
+            ConnectionManager.connections.put(nickname, self());
             online = true;
         }
     }
 
+    /**
+     * Changes a attribute.
+     *
+     * @param change the change message
+     */
     private void applyChange(Change change) {
-        if (change.field.equals(Change.Field.NICKNAME)) {
-            nickname = change.getValue();
+        if (change.getField().equals(Change.Field.NICKNAME)) {
+            setNickname(change.getValue());
             return;
         }
 
-        if (change.field.equals(Change.Field.REALNAME)) {
-            realname = change.getValue();
+        if (change.getField().equals(Change.Field.REALNAME)) {
+            setRealname(change.getValue());
         }
+    }
+
+    /**
+     *
+     *
+     * @param chat
+     */
+    private void relay(Chat chat) {
+        HashMap<String, ActorRef> targets =
+                chat.getTargetType().equals(Chat.TargetType.USER) ? ConnectionManager.connections : ChannelManager.channels;
+
+        for (Map.Entry<String, ActorRef> entry : targets.entrySet()) {
+            if (entry.getKey().equals(chat.getTarget())) {
+                entry.getValue().tell(Notification.get(Notification.Reply.RPL_PRIVMSG,
+                        new String[]{ nickname, chat.getTarget(), chat.getMessage(), hostname }), self());
+                return;
+            }
+        }
+
+        if (chat.getType().equals(Chat.Type.PRIVMSG))
+            write(Notification.get(Notification.Error.ERR_NOSUCHNICK, new String[]{chat.getTarget(), hostname}));
     }
 
     /**
@@ -149,11 +177,20 @@ public class ConnectionHandler extends AbstractActor {
      *
      * @param message the quit message
      */
-    public void logout(String message) {
-        ConnectionManager.connections.remove(this);
+    private void logout(Logout message) {
+        ConnectionManager.connections.remove(nickname);
 
-        remote.tell(Notification.get(Notification.Error.ERROR, new String[]{ message, hostname }), self());
+        write(Notification.get(Notification.Error.ERROR, new String[]{ message.getMessage(), hostname }));
         getContext().stop(getSelf());
+    }
+
+    /**
+     * Write a string to a specific connection.
+
+     * @param message the message to write
+     */
+    private void write(String message) {
+        remote.tell(TcpMessage.write(ByteString.fromString(message.intern() + '\r' + '\n'), TcpMessage.noAck()), getSelf());
     }
 
     /**
@@ -180,37 +217,30 @@ public class ConnectionHandler extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
+                .matchEquals(Template.get("pong").toString(), s -> write("PONG"))
+                .matchEquals(Template.get("motd").toString(), s -> write(Settings.messageofTheDay()))
+                .matchEquals(42, s -> sender().tell(realname, self()))
                 .match(Tcp.Received.class, msg -> {
-                    if (connection == null && remote == null) {
+                    if (remote == null) {
                         remote = getSender();
-                        connection = Connection.create(getSelf(), hostname);
-                        ConnectionManager.connections.add(connection);
                     }
 
-                    //System.out.println(msg.data().decodeString("US-ASCII"));
-                    PunkServer.getParser().tell(ParseMessage.create(msg.data().decodeString("US-ASCII"), connection), self());
+                    PunkServer.getParser().tell(MessageBuilder.parse(msg.data().decodeString("US-ASCII")), self());
                 })
                 .match(Tcp.ConnectionClosed.class, msg -> getContext().stop(getSelf()))
-                .match(String.class, s -> remote.tell(TcpMessage.write(ByteString.fromString(s.intern() + '\r' + '\n'), TcpMessage.noAck()), getSelf()))
-                .match(Connection.class, con -> {
-                    int index = ConnectionManager.connections.indexOf(connection);
-                    if (index != -1) ConnectionManager.connections.set(index, con);
-
-                    connection = con;
-                })
-                .match(ChatMessage.class, s -> s.getTarget().tell(s.toString(), self()))
+                .match(String.class, this::write)
                 .match(WhoIs.class, msg -> {
-                    if (msg.isRequest()) context().parent().tell(msg, self());
-                    if (!msg.isRequest()) connection.finishRequest(msg);
+                    //TODO: Complete rewrite needed!
+                    /*if (msg.isRequest()) context().parent().tell(msg, self());
+                    if (!msg.isRequest()) connection.finishRequest(msg);*/
                 })
                 .match(Join.class, j -> PunkServer.getChannelManager().tell(MessageBuilder.join(nickname, j.getChannel(), hostname), self()))
                 .match(Chat.class, c -> {
-                    if (!c.hasError()) connection.relay(c);
-                    if (c.hasError()) remote.tell(c.getError(), self());
+                    if (!c.hasError()) relay(c);
+                    if (c.hasError()) write(c.getError());
                 })
-                .match(Info.PING.getClass(), s -> remote.tell(Template.get("pong").toString(), self()))
-                .match(Info.MOTD.getClass(), s -> remote.tell(Settings.messageofTheDay(), self()))
                 .match(Change.class, this::applyChange)
+                .match(Logout.class, this::logout)
                 .build();
     }
 }

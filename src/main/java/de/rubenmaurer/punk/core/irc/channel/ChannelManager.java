@@ -3,18 +3,11 @@ package de.rubenmaurer.punk.core.irc.channel;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import de.rubenmaurer.punk.core.irc.client.Connection;
-import de.rubenmaurer.punk.core.irc.messages.Chat;
-import de.rubenmaurer.punk.core.irc.messages.Join;
+import de.rubenmaurer.punk.core.irc.messages.impl.Join;
 import de.rubenmaurer.punk.core.reporter.Report;
-import de.rubenmaurer.punk.util.Notification;
-import de.rubenmaurer.punk.util.Settings;
 import scala.Option;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import static de.rubenmaurer.punk.core.Guardian.reporter;
 
@@ -24,14 +17,14 @@ import static de.rubenmaurer.punk.core.Guardian.reporter;
  *
  * @author Ruben Maurer
  * @version 1.0
- * @since 1.0
+ * @since 1.1
  */
 public class ChannelManager extends AbstractActor {
 
     /**
      * List of existing channels.
      */
-    static HashMap<String, ActorRef> channels = new HashMap<>();
+    public static HashMap<String, ActorRef> channels = new HashMap<>();
 
     /**
      * Get needed props for creating a new actor.
@@ -51,7 +44,7 @@ public class ChannelManager extends AbstractActor {
         String channel = getChannelName(joinMessage.getChannel());
         final Option<ActorRef> child = context().child(channel);
         if (!child.isDefined()) {
-            final ActorRef ch = context().actorOf(ChannelHandler.props(), channel);
+            final ActorRef ch = context().actorOf(ChannelHandler.props(joinMessage.getChannel()), channel);
             ch.tell(joinMessage, sender());
             channels.put(joinMessage.getChannel(), ch);
             return;
@@ -72,34 +65,6 @@ public class ChannelManager extends AbstractActor {
     }
 
     /**
-     * Is the given channel name existing?
-     *
-     * @param channel the channel name
-     * @return channel exists?
-     */
-    private boolean channelExists(String channel) {
-        for (Map.Entry<String, ActorRef> entry : channels.entrySet()) {
-            if (entry.getKey().equals(channel)) return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Process a chat message.
-     *
-     * @param chat the chat message
-     */
-    private void processChatMessage(Chat chat) {
-        if (channelExists(chat.getTarget())) {
-            channels.get(chat.getTarget()).tell(chat, sender());
-            return;
-        }
-
-        sender().tell(Notification.get(Notification.Error.ERR_NOSUCHNICK, new String[] { Settings.hostname(), chat.getTarget() }), self());
-    }
-
-    /**
      * Gets fired before startup.
      */
     @Override
@@ -116,7 +81,6 @@ public class ChannelManager extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(Join.class, this::join)
-                .match(Chat.class, this::processChatMessage)
                 .build();
     }
 }

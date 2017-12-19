@@ -1,4 +1,6 @@
-package de.rubenmaurer.punk.core.irc.messages;
+package de.rubenmaurer.punk.core.irc.messages.impl;
+
+import de.rubenmaurer.punk.core.irc.messages.Message;
 
 public class Logout extends Message {
     private final String message;
@@ -7,7 +9,7 @@ public class Logout extends Message {
         return message;
     }
 
-    Logout(String message) {
+    public Logout(String message) {
         this.message = message;
     }
 }

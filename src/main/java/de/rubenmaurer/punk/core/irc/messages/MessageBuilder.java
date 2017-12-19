@@ -1,13 +1,13 @@
 package de.rubenmaurer.punk.core.irc.messages;
 
-import akka.actor.ActorRef;
+import de.rubenmaurer.punk.core.irc.messages.impl.*;
 
 /**
  * Builder for all types of messages.
  *
  * @author Ruben Maurer
  * @version 1.0
- * @since 1.0
+ * @since 1.1
  */
 public class MessageBuilder {
 
@@ -67,30 +67,15 @@ public class MessageBuilder {
     }
 
     /**
-     * Create a chatMessage.
-     *
-     * @param target the target
-     * @param nickname the nickname to use
-     * @param message the message
-     * @param sender the sender
-     * @param type message type
-     * @param hostname the hostname
-     * @return the message
-     */
-    public static Message chatMessage(ActorRef target, String nickname, String message, String sender, ChatMessage.Type type, String hostname) {
-        return new ChatMessage(target, nickname, message, sender, type, hostname);
-    }
-
-    /**
      * Create a chat message.
      *
      * @param target the target
-     * @param type the message type
+     * @param targetType the message targetType
      * @param message the message
      * @return the message
      */
-    public static Message chat(String target, Chat.Type type, String message) {
-        return new Chat(target, type, message);
+    public static Message chat(String target, Chat.TargetType targetType, String message, Chat.Type type) {
+        return new Chat(target, targetType, message, type);
     }
 
     /**
@@ -112,5 +97,15 @@ public class MessageBuilder {
      */
     public static Message change(Change.Field field, String value) {
         return new Change(field, value);
+    }
+
+    /**
+     * Create a new parse message.
+     *
+     * @param message the message to parse
+     * @return the message
+     */
+    public static Message parse(String message) {
+        return new ParseMessage(message);
     }
 }

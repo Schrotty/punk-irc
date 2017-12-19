@@ -3,8 +3,7 @@ package de.rubenmaurer.punk.core.irc.parser;
 import akka.actor.AbstractActor;
 import akka.actor.Props;
 import de.rubenmaurer.punk.core.Guardian;
-import de.rubenmaurer.punk.core.irc.messages.Info;
-import de.rubenmaurer.punk.core.irc.messages.ParseMessage;
+import de.rubenmaurer.punk.core.irc.messages.impl.ParseMessage;
 import de.rubenmaurer.punk.core.reporter.Report;
 import de.rubenmaurer.punk.util.Settings;
 import de.rubenmaurer.punk.util.Template;
@@ -16,8 +15,8 @@ import java.util.Map;
  * Actor for managing all the parser worker.
  *
  * @author Ruben Maurer
- * @version 1.0
- * @since 1.0
+ * @version 1.1
+ * @since 1.1
  */
 public class ParserManager extends AbstractActor {
 
@@ -41,7 +40,7 @@ public class ParserManager extends AbstractActor {
     private void delegate(ParseMessage message) {
         if (workerPlan.size() != 0) {
             if (!workerPlan.get(worker)) {
-                context().child(worker).get().tell(message, self());
+                context().child(worker).get().tell(message, sender());
                 workerPlan.replace(worker, true);
                 return;
             }
@@ -49,7 +48,7 @@ public class ParserManager extends AbstractActor {
             for (Map.Entry<String, Boolean> entry : workerPlan.entrySet()) {
                 if (!entry.getValue()) {
                     worker = entry.getKey();
-                    return;
+                    break;
                 }
             }
 
@@ -88,13 +87,11 @@ public class ParserManager extends AbstractActor {
             workerPlan.put(name, false);
             context().watch(context().actorOf(ParserWorker.props(), name));
         }
-
-        //context().parent().tell(Info.READY, self());
     }
 
     private void workerRunning() {
         if (++workerReady == Settings.parseWorker())
-            context().parent().tell(Info.READY, self());
+            context().parent().tell(Template.get("subSysReady").toString(), self());
     }
 
     /**
@@ -108,7 +105,7 @@ public class ParserManager extends AbstractActor {
                 .match(ParseMessage.class, this::delegate)
                 .matchEquals(Template.get("parserWorkStart").toString(), s -> startWorker())
                 .match(String.class, s -> workerPlan.replace(s, false))
-                .match(Info.READY.getClass(), s -> workerRunning())
+                .matchEquals(Template.get("subSysReady").toString(), s -> workerRunning())
                 .build();
     }
 }

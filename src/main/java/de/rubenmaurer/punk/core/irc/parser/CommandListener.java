@@ -3,9 +3,8 @@ package de.rubenmaurer.punk.core.irc.parser;
 import akka.actor.ActorRef;
 import de.rubenmaurer.punk.IRCListener;
 import de.rubenmaurer.punk.IRCParser;
-import de.rubenmaurer.punk.core.irc.client.Connection;
-import de.rubenmaurer.punk.core.irc.messages.Change;
-import de.rubenmaurer.punk.core.irc.messages.Info;
+import de.rubenmaurer.punk.core.irc.messages.impl.Change;
+import de.rubenmaurer.punk.core.irc.messages.impl.Chat;
 import de.rubenmaurer.punk.core.irc.messages.MessageBuilder;
 import de.rubenmaurer.punk.util.Notification;
 import de.rubenmaurer.punk.util.Settings;
@@ -27,7 +26,7 @@ public class CommandListener implements IRCListener {
     /**
      * Connection for this listener
      */
-    private Connection connection;
+    private ActorRef connection;
 
     /**
      * The worker this worker works for.
@@ -40,7 +39,7 @@ public class CommandListener implements IRCListener {
      * @param connection the used connection
      * @param worker the used worker
      */
-    CommandListener(Connection connection, ActorRef worker) {
+    CommandListener(ActorRef connection, ActorRef worker) {
         this.connection = connection;
         this.worker = worker;
     }
@@ -54,8 +53,8 @@ public class CommandListener implements IRCListener {
     public void enterChatLine(IRCParser.ChatLineContext ctx) {
         if (ctx.commands().size() == 0) {
             if (StringUtils.isAllUpperCase(ctx.WORD(0).getText())) {
-                connection.write(Notification.get(Notification.Error.ERR_UNKNOWNCOMMAND,
-                        new String[]{connection.getHostname(), ctx.WORD(0).getText()}));
+                connection.tell(Notification.get(Notification.Error.ERR_UNKNOWNCOMMAND,
+                        new String[]{Settings.hostname(), ctx.WORD(0).getText() }), worker);
             }
         }
     }
@@ -67,7 +66,7 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void exitChatLine(IRCParser.ChatLineContext ctx) {
-        worker.tell(connection, ActorRef.noSender());
+        worker.tell(Template.get("workerDone").toString(), ActorRef.noSender());
     }
 
     /**
@@ -117,8 +116,7 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void enterNickCommand(IRCParser.NickCommandContext ctx) {
-        //connection.setNickname(ctx.user().getText());
-        connection.getConnection().tell(MessageBuilder.change(Change.Field.NICKNAME, ctx.user().getText()), ActorRef.noSender());
+        connection.tell(MessageBuilder.change(Change.Field.NICKNAME, ctx.user().getText()), worker);
     }
 
     /**
@@ -138,8 +136,7 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void enterUserCommand(IRCParser.UserCommandContext ctx) {
-        //connection.setRealname(ctx.realname().getText());
-        connection.getConnection().tell(MessageBuilder.change(Change.Field.REALNAME, ctx.user().getText()), ActorRef.noSender());
+        connection.tell(MessageBuilder.change(Change.Field.REALNAME, ctx.user().getText()), worker);
     }
 
     /**
@@ -179,9 +176,9 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void enterQuitCommand(IRCParser.QuitCommandContext ctx) {
-        connection.getConnection().tell(MessageBuilder.logout(
+        connection.tell(MessageBuilder.logout(
                 ctx.message() == null ? Template.get("quitMessage").toString() : ctx.message().getText()
-        ), ActorRef.noSender());
+        ), worker);
     }
 
     /**
@@ -201,7 +198,12 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void enterPrivmsgCommand(IRCParser.PrivmsgCommandContext ctx) {
-        connection.chat(ctx.user().getText(), ctx.message() == null ? "" : ctx.message().getText());
+        if (ctx.user().getText().startsWith("#")) {
+            connection.tell(MessageBuilder.chat(ctx.user().getText(), Chat.TargetType.CHANNEL, ctx.message() == null ? "" : ctx.message().getText(), Chat.Type.PRIVMSG), worker);
+            return;
+        }
+
+        connection.tell(MessageBuilder.chat(ctx.user().getText(), Chat.TargetType.USER, ctx.message() == null ? "" : ctx.message().getText(), Chat.Type.PRIVMSG), worker);
     }
 
     /**
@@ -221,8 +223,12 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void enterNotice(IRCParser.NoticeContext ctx) {
-        connection.notice(ctx.user().getText(),
-                ctx.message() == null ? "" : ctx.message().getText());
+        if (ctx.user().getText().startsWith("#")) {
+            connection.tell(MessageBuilder.chat(ctx.user().getText(), Chat.TargetType.CHANNEL, ctx.message() == null ? "" : ctx.message().getText(), Chat.Type.NOTICE), worker);
+            return;
+        }
+
+        connection.tell(MessageBuilder.chat(ctx.user().getText(), Chat.TargetType.USER, ctx.message() == null ? "" : ctx.message().getText(), Chat.Type.NOTICE), worker);
     }
 
     /**
@@ -242,7 +248,7 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void enterPing(IRCParser.PingContext ctx) {
-        connection.getConnection().tell(Info.PING, ActorRef.noSender());
+        connection.tell(Template.get("pong").toString(), worker);
     }
 
     /**
@@ -277,7 +283,7 @@ public class CommandListener implements IRCListener {
 
     @Override
     public void enterMotd(IRCParser.MotdContext ctx) {
-        connection.getConnection().tell(Info.MOTD, ActorRef.noSender());
+        connection.tell(Template.get("motd").toString(), worker);
     }
 
     @Override
@@ -292,7 +298,7 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void enterWhois(IRCParser.WhoisContext ctx) {
-        connection.getConnection().tell(MessageBuilder.whoIs(ctx.user().getText()), ActorRef.noSender());
+        connection.tell(MessageBuilder.whoIs(ctx.user().getText()), worker);
     }
 
     /**
@@ -333,7 +339,7 @@ public class CommandListener implements IRCListener {
     @Override
     public void enterJoin(IRCParser.JoinContext ctx) {
         //connection.join(ctx.WORD().getText());/
-        connection.getConnection().tell(MessageBuilder.join(ctx.WORD().getText()), ActorRef.noSender());
+        connection.tell(MessageBuilder.join(ctx.WORD().getText()), worker);
     }
 
     /**

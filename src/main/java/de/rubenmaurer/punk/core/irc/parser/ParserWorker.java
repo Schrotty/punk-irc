@@ -7,10 +7,9 @@ import de.rubenmaurer.punk.IRCLexer;
 import de.rubenmaurer.punk.IRCListener;
 import de.rubenmaurer.punk.IRCParser;
 import de.rubenmaurer.punk.core.Guardian;
-import de.rubenmaurer.punk.core.irc.client.Connection;
-import de.rubenmaurer.punk.core.irc.messages.Info;
-import de.rubenmaurer.punk.core.irc.messages.ParseMessage;
+import de.rubenmaurer.punk.core.irc.messages.impl.ParseMessage;
 import de.rubenmaurer.punk.core.reporter.Report;
+import de.rubenmaurer.punk.util.Template;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -22,15 +21,10 @@ import java.util.Arrays;
  * Actor for parsing incoming messages.
  *
  * @author Ruben Maurer
- * @version 1.0
+ * @version 1.2
  * @since 1.0
  */
 public class ParserWorker extends AbstractActor {
-
-    /**
-     * Handler to work for.
-     */
-    private ActorRef handler;
 
     /**
      * Get props for creating a new actor.
@@ -44,10 +38,9 @@ public class ParserWorker extends AbstractActor {
     /**
      * Parse a message.
      *
-     * @param connection the connection to parse for
      * @param message the message to parse
      */
-    private void parse(Connection connection, String message) {
+    private void parse(String message) {
         CharStream stream = CharStreams.fromString(message);
 
         IRCLexer lexer = new IRCLexer(stream);
@@ -57,7 +50,7 @@ public class ParserWorker extends AbstractActor {
         IRCParser.ChatLineContext context = parser.chatLine();
 
         ParseTreeWalker walker = new ParseTreeWalker();
-        IRCListener listener = new CommandListener(connection, self());
+        IRCListener listener = new CommandListener(sender(), self());
 
         walker.walk(listener, context);
     }
@@ -68,7 +61,7 @@ public class ParserWorker extends AbstractActor {
     @Override
     public void preStart() {
         Guardian.reporter().tell(Report.create(Report.Type.ONLINE), self());
-        context().parent().tell(Info.READY, self());
+        context().parent().tell(Template.get("subSysReady").toString(), self());
     }
 
     /**
@@ -80,13 +73,9 @@ public class ParserWorker extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(ParseMessage.class, msg -> {
-                    handler = msg.getConnection().getConnection();
-                    Arrays.stream(msg.getMessage().split("\r\n")).forEach(arg -> parse(msg.getConnection(), arg));
+                    Arrays.stream(msg.getMessage().split("\r\n")).forEach(this::parse);
                 })
-                .match(Connection.class, connection -> {
-                    handler.tell(connection, self());
-                    context().parent().tell(self().path().name(), self());
-                })
+                .matchEquals(Template.get("workerDone").toString(), s -> context().parent().tell(self().path().name(), self()))
                 .build();
     }
 }

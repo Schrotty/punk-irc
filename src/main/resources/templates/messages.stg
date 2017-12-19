@@ -5,11 +5,14 @@ readyMessage() ::= "--- punkIRC is ready! ---"
 
 //Util strings
 quitMessage() ::= "Client Quit"
-pong() ::= "PONG"
 defaultChannelTopic() ::= "I'm a channel with no topic!"
 
 //Actor messages
-parserWorkStart() ::= "START_PARSER_WORKER"
+parserWorkStart() ::= "000_START_PARSER_WORKER"
+pong() ::= "001_PONG_MESSAGE"
+motd() ::= "002_MOTD_MESSAGE"
+workerDone() ::= "003_WORKER_DONE_PARSE"
+subSysReady() ::= "004_SUBSYSTEM_READY"
 
 //Replys
 RPL_WELCOME(nick, user, host) ::= ":<host> 001 <nick> :Welcome to the Internet Relay Chat Network <nick>!<user>@<host>"
