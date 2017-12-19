@@ -56,47 +56,12 @@ public class Connection {
     }
 
     /**
-     * Set connection nickname.
-     *
-     * @param nickname the new nickname
-     */
-    public void setNickname(String nickname) {
-        if (!ConnectionManager.hasNickname(nickname)) {
-            if (login) {
-                write(Notification.get(Notification.Reply.RPL_NICKCHANGE,
-                        new String[] { this.nickname, nickname }));
-            }
-
-            this.nickname = nickname;
-            tryLogin();
-            return;
-        }
-
-        write(Notification.get(Notification.Error.ERR_NICKNAMEINUSE, nickname));
-    }
-
-    /**
      * Get connection real-name.
      *
      * @return the real-name
      */
     public String getRealname() {
         return realname;
-    }
-
-    /**
-     * Set connection real-name
-     *
-     * @param realname the new real-name
-     */
-    public void setRealname(String realname) {
-        if(this.realname.isEmpty()) {
-            this.realname = realname;
-            tryLogin();
-            return;
-        }
-
-        write(Notification.get(Notification.Error.ERR_ALREADYREGISTRED, Settings.hostname()));
     }
 
     /**
@@ -183,47 +148,12 @@ public class Connection {
     }
 
     /**
-     * Logout a connection.
-     *
-     * @param message the quit message
-     */
-    public void logout(String message) {
-        ConnectionManager.connections.remove(this);
-
-        write(Notification.get(Notification.Error.ERROR, new String[]{ message, hostname }));
-        connection.tell(TcpMessage.close(), ActorRef.noSender());
-    }
-
-    /**
-     * Try to login the connection.
-     */
-    private void tryLogin() {
-        if (!isLogged() && (!nickname.isEmpty() && !realname.isEmpty())) {
-            connection.tell(Notification.get(Notification.Reply.RPL_WELCOME,
-                    new String[] { nickname, realname, hostname }), ActorRef.noSender());
-
-            write(Notification.get(Notification.Reply.RPL_YOURHOST));
-            write(Notification.get(Notification.Reply.RPL_CREATED));
-            write(Notification.get(Notification.Reply.RPL_MYINFO));
-
-            login = true;
-        }
-    }
-
-    /**
      * Is connection logged in
      *
      * @return is logged in?
      */
     private boolean isLogged() {
         return login;
-    }
-
-    /**
-     * Plays ping pong...
-     */
-    public void pong() {
-        write(Template.get("pong").toString());
     }
 
     /**

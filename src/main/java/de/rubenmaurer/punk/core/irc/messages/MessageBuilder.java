@@ -45,6 +45,16 @@ public class MessageBuilder {
     }
 
     /**
+     * Create a new join message.
+     *
+     * @param channel the channel to join
+     * @return the message
+     */
+    public static Message join(String channel) {
+        return new Join(channel);
+    }
+
+    /**
      * Create a join message with a nickname, the channel to join and the hostname.
      *
      * @param nickname the nickname
@@ -81,5 +91,26 @@ public class MessageBuilder {
      */
     public static Message chat(String target, Chat.Type type, String message) {
         return new Chat(target, type, message);
+    }
+
+    /**
+     * Create a logout message.
+     *
+     * @param message the quit message
+     * @return the message
+     */
+    public static Message logout(String message) {
+        return new Logout(message);
+    }
+
+    /**
+     * Create a new change message.
+     *
+     * @param field the field to change
+     * @param value the new field value
+     * @return the message
+     */
+    public static Message change(Change.Field field, String value) {
+        return new Change(field, value);
     }
 }

@@ -24,6 +24,7 @@ public class Join extends Message {
      */
     private final String hostname;
 
+
     /**
      * Get the nickname.
      *
@@ -49,6 +50,10 @@ public class Join extends Message {
      */
     public String getHostname() {
         return hostname;
+    }
+
+    Join(String channel) {
+        this.channel = channel;
     }
 
     /**

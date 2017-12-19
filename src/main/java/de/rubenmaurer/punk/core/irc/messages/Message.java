@@ -20,6 +20,11 @@ public abstract class Message {
     boolean error = false;
 
     /**
+     * Is this message empty?
+     */
+    boolean empty = true;
+
+    /**
      * The error message.
      */
     String errorMessage;
@@ -40,6 +45,15 @@ public abstract class Message {
      */
     public boolean hasError() {
         return error;
+    }
+
+    /**
+     * Is this message empty?
+     *
+     * @return is emty?
+     */
+    public boolean isEmpty() {
+        return empty;
     }
 
     /**

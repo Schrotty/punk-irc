@@ -4,6 +4,8 @@ import akka.actor.ActorRef;
 import de.rubenmaurer.punk.IRCListener;
 import de.rubenmaurer.punk.IRCParser;
 import de.rubenmaurer.punk.core.irc.client.Connection;
+import de.rubenmaurer.punk.core.irc.messages.Change;
+import de.rubenmaurer.punk.core.irc.messages.Info;
 import de.rubenmaurer.punk.core.irc.messages.MessageBuilder;
 import de.rubenmaurer.punk.util.Notification;
 import de.rubenmaurer.punk.util.Settings;
@@ -115,7 +117,8 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void enterNickCommand(IRCParser.NickCommandContext ctx) {
-        connection.setNickname(ctx.user().getText());
+        //connection.setNickname(ctx.user().getText());
+        connection.getConnection().tell(MessageBuilder.change(Change.Field.NICKNAME, ctx.user().getText()), ActorRef.noSender());
     }
 
     /**
@@ -135,7 +138,8 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void enterUserCommand(IRCParser.UserCommandContext ctx) {
-        connection.setRealname(ctx.realname().getText());
+        //connection.setRealname(ctx.realname().getText());
+        connection.getConnection().tell(MessageBuilder.change(Change.Field.REALNAME, ctx.user().getText()), ActorRef.noSender());
     }
 
     /**
@@ -175,7 +179,9 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void enterQuitCommand(IRCParser.QuitCommandContext ctx) {
-        connection.logout(ctx.message() == null ? Template.get("quitMessage").toString() : ctx.message().getText());
+        connection.getConnection().tell(MessageBuilder.logout(
+                ctx.message() == null ? Template.get("quitMessage").toString() : ctx.message().getText()
+        ), ActorRef.noSender());
     }
 
     /**
@@ -236,7 +242,7 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void enterPing(IRCParser.PingContext ctx) {
-        connection.pong();
+        connection.getConnection().tell(Info.PING, ActorRef.noSender());
     }
 
     /**
@@ -271,7 +277,7 @@ public class CommandListener implements IRCListener {
 
     @Override
     public void enterMotd(IRCParser.MotdContext ctx) {
-        connection.write(Settings.messageofTheDay());
+        connection.getConnection().tell(Info.MOTD, ActorRef.noSender());
     }
 
     @Override
@@ -326,7 +332,8 @@ public class CommandListener implements IRCListener {
      */
     @Override
     public void enterJoin(IRCParser.JoinContext ctx) {
-        connection.join(ctx.WORD().getText());
+        //connection.join(ctx.WORD().getText());/
+        connection.getConnection().tell(MessageBuilder.join(ctx.WORD().getText()), ActorRef.noSender());
     }
 
     /**
