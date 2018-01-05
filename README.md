@@ -5,4 +5,4 @@ pnk IRC Server
 ![alt text](https://github.com/Schrotty/punk-irc/blob/master/actor-system.png)
 
 ## Features
-_Comming soon!_
+_Coming soon!_
