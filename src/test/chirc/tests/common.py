@@ -18,7 +18,8 @@ class IRCSession():
                  default_port = None, loglevel = -1, debug = False):
         if chirc_exe is None:
             self.chirc_exe = "I:\Projekte\punk-irc\\target\punkIRC\punkIRC.jar"
-            # self.chirc_exe = "C:\\Users\\ruben\\IdeaProjects\\punk-irc\\target\punkIRC\punkIRC.jar"
+            if not (os.path.exists(self.chirc_exe) and os.path.isfile(self.chirc_exe) and os.access(self.chirc_exe, os.X_OK)):
+                self.chirc_exe = "C:\\Users\\ruben\\IdeaProjects\\punk-irc\\target\punkIRC\punkIRC.jar"
         else:            
             self.chirc_exe = chirc_exe
 
