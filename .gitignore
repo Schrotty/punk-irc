@@ -8,3 +8,4 @@ actor-system.vsdx
 alltests
 venv/
 /punk-irc.iml
+*.pyc

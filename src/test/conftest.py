@@ -20,6 +20,7 @@ def irc_session(request):
     chirc_loglevel = request.config.getoption("--chirc-loglevel")
     chirc_port = request.config.getoption("--chirc-port")
     randomize_ports = request.config.getoption("--randomize-ports")
+    #env = request.config.getoption("--env")
     
     session = IRCSession(chirc_exe = chirc_exe, 
                          loglevel = chirc_loglevel, 
