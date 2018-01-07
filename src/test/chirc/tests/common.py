@@ -17,7 +17,7 @@ class IRCSession():
     def __init__(self, chirc_exe = None, msg_timeout = 0.1, randomize_ports = False, 
                  default_port = None, loglevel = -1, debug = False):
         if chirc_exe is None:
-            self.chirc_exe = "../server/punkIRC.jar"
+            self.chirc_exe = "I:\Projekte\punk-irc\\target\punkIRC\punkIRC.jar"
         else:            
             self.chirc_exe = chirc_exe
 
@@ -25,7 +25,7 @@ class IRCSession():
             raise RuntimeError("{} does not exist or it is not executable".format(self.chirc_exe))
 
         if default_port is None:
-            self.default_port = 7776
+            self.default_port = 6667
         else:            
             self.default_port = default_port
 
@@ -87,7 +87,8 @@ class IRCSession():
             elif self.loglevel == 2:
                 chirc_cmd.append("-vv")
 
-            self.chirc_proc = subprocess.Popen(chirc_cmd, cwd = self.tmpdir)
+            #self.chirc_proc = subprocess.Popen(chirc_cmd, cwd = self.tmpdir)
+            self.chirc_proc = subprocess.Popen(['java', '-jar', 'I:\Projekte\punk-irc\\target\punkIRC\punkIRC.jar'])
             time.sleep(0.01)
             rc = self.chirc_proc.poll()        
             if rc != None:
@@ -331,7 +332,7 @@ class IRCSession():
                            long_param_re = "They aren't on that channel")
             
             
-    # ChatMessage/reply getters
+    # Message/reply getters
 
     def get_reply(self, client, expect_code = None, expect_nick = None, expect_nparams = None,
                   expect_short_params = None, long_param_re = None, long_param_values = None,
@@ -377,7 +378,7 @@ class IRCSession():
                       long_param_re = None, long_param_values = None):
         
         if expect_prefix != None and expect_prefix:
-            assert msg.prefix is not None, "Expected a prefix, but got none.\nChatMessage: {}".format(msg.raw(bookends=True))
+            assert msg.prefix is not None, "Expected a prefix, but got none.\nMessage: {}".format(msg.raw(bookends=True))
             
         if expect_cmd != None:
             self._assert_equals(msg.cmd, expect_cmd, 
@@ -498,7 +499,7 @@ class IRCSession():
             r.append(reply)
         else:
             reply = self.get_reply(client, expect_code = replies.RPL_MOTDSTART, expect_nick = nick, 
-                                   expect_nparams = 1, long_param_re = "- .* ChatMessage of the day - ")
+                                   expect_nparams = 1, long_param_re = "- .* Message of the day - ")
             r.append(reply)
             
             motd_lines = expect_motd.strip().split("\n")

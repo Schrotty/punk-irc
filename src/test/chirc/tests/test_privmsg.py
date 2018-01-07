@@ -28,10 +28,10 @@ class TestPRIVMSG(object):
         client2 = irc_session.connect_user("user2", "User Two")
 
         for i in range(100):
-            client1.send_cmd("PRIVMSG user2 :ChatMessage %i" % (i+1))
+            client1.send_cmd("PRIVMSG user2 :Message %i" % (i+1))
             
         for i in range(100):
-            irc_session.verify_relayed_privmsg(client2, from_nick="user1", recip="user2", msg="ChatMessage %i" % (i+1))
+            irc_session.verify_relayed_privmsg(client2, from_nick="user1", recip="user2", msg="Message %i" % (i+1))
 
 
     def _test_multi_clients(self, irc_session, numclients, nummsgs, msg_timeout = None):
@@ -53,21 +53,21 @@ class TestPRIVMSG(object):
             for (nick2, client2) in clients:
                 if client1 != client2:
                     for i in range(nummsgs):
-                        msg = "ChatMessage %i from %s to %s" % (i+1, nick1, nick2)
+                        msg = "Message %i from %s to %s" % (i+1, nick1, nick2)
                         client1.send_cmd("PRIVMSG %s :%s" % (nick2, msg))
                         msgs_sent.add((nick1, nick2, msg))
                         
                         relayed_privmsg = irc_session.get_message(client2, expect_prefix = True, expect_cmd = "PRIVMSG", 
                                                                   expect_nparams = 2, expect_short_params = [nick2], 
-                                                                  long_param_re = "ChatMessage \d+ from user\d+ to user\d+")
+                                                                  long_param_re = "Message \d+ from user\d+ to user\d+")
                         msgs_rcvd.append( (relayed_privmsg.prefix.nick, nick2, relayed_privmsg) )
 
         pairs_seen = dict([((nick1, nick2),0) for (nick1,nick2,msg) in msgs_sent])
         for (from_nick, to_nick, msg) in msgs_rcvd:
-            match = re.match(":ChatMessage (?P<msgnum>\d+) from (?P<from>user\d+) to (?P<to>user\d+)", msg.params[-1])
+            match = re.match(":Message (?P<msgnum>\d+) from (?P<from>user\d+) to (?P<to>user\d+)", msg.params[-1])
             
             irc_session._assert_is_not_none(match, 
-                                            "Received unexpected message (expected something of the form 'ChatMessage X from userN to userM')", 
+                                            "Received unexpected message (expected something of the form 'Message X from userN to userM')", 
                                             irc_msg = msg)
             
             from_nick2 = match.group("from")          
@@ -83,7 +83,7 @@ class TestPRIVMSG(object):
                                        irc_msg = msg)            
 
             irc_session._assert_equals(pairs_seen[(from_nick, to_nick)], msgnum-1, 
-                                       explanation = "ChatMessage arrived out of sequence (expected message {})".format(pairs_seen[(from_nick, to_nick)]+1), 
+                                       explanation = "Message arrived out of sequence (expected message {})".format(pairs_seen[(from_nick, to_nick)]+1), 
                                        irc_msg = msg)                      
                         
             pairs_seen[(from_nick, to_nick)] = msgnum
