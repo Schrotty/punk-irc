@@ -15,7 +15,7 @@ workerDone() ::= "003_WORKER_DONE_PARSE"
 subSysReady() ::= "004_SUBSYSTEM_READY"
 
 //Replys
-RPL_WELCOME(nick, user, host) ::= ":<host> 001 <nick> :Welcome to the Internet Relay Chat Network <nick>!<user>@<host>"
+RPL_WELCOME(nick, user, host) ::= ":<host> 001 <nick> :Welcome to the Internet Relay Network <nick>!<user>@<host>"
 RPL_YOURHOST(host, servername, version) ::= ":<host> 002 :Your host is <servername>, running version <version>"
 RPL_CREATED(host, date) ::= ":<host> 003 :This server was created <date>"
 RPL_MYINFO(host, servername, version) ::= ":<host> 004 : <servername> <version> ao mtov"

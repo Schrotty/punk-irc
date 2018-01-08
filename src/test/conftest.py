@@ -12,7 +12,9 @@ def pytest_addoption(parser):
     parser.addoption("--chirc-port", action="store", type=int,
         help="port to run server on")       
     parser.addoption("--randomize-ports", action="store_true",
-        help="randomize server's port when running tests")       
+        help="randomize server's port when running tests")
+    parser.addoption("--path", action="store",
+        help="choose path for jar file")
 
 @pytest.fixture
 def irc_session(request):   
@@ -20,12 +22,13 @@ def irc_session(request):
     chirc_loglevel = request.config.getoption("--chirc-loglevel")
     chirc_port = request.config.getoption("--chirc-port")
     randomize_ports = request.config.getoption("--randomize-ports")
-    #env = request.config.getoption("--env")
+    path = request.config.getoption("--path")
     
     session = IRCSession(chirc_exe = chirc_exe, 
                          loglevel = chirc_loglevel, 
                          default_port = chirc_port,
-                         randomize_ports=randomize_ports)
+                         randomize_ports=randomize_ports,
+                         path=path)
     
     session.start_session()
     

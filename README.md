@@ -8,3 +8,8 @@ pnk IRC Server
 
 ## Features
 _Coming soon!_
+
+## Testing
+To test the server, execute the 'test.bat' with the <path-to-jar-file> as parameter.
+
+Example: test.bat C://users/<user>/projects/build/punkIRC.jar 
