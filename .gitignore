@@ -9,4 +9,3 @@ alltests
 venv/
 /punk-irc.iml
 *.pyc
-src/test/__pycache__/conftest.cpython-36-PYTEST.pyc
