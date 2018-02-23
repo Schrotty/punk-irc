@@ -2,11 +2,9 @@ package de.rubenmaurer.punk.util;
 
 import de.rubenmaurer.punk.Punk;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Properties;
+import java.util.Random;
 
 /**
  * Helper for accessing properties.
@@ -88,7 +86,19 @@ public class Settings {
      * @return the worker name
      */
     public static String parseWorkerName(int index) {
-        return getInstance().get("parseWorkerNames").split(";")[index];
+        StringBuilder builder = new StringBuilder();
+
+        try(InputStream str = Punk.class.getClassLoader().getResourceAsStream("parser.csv")) {
+            int data = str.read();
+            while (data != -1) {
+                builder.append((char) data);
+                data = str.read();
+            }
+        } catch (Exception ignored) {
+
+        }
+
+        return builder.toString().split(";")[index];
     }
 
     /**
@@ -101,7 +111,7 @@ public class Settings {
 
         try(BufferedReader reader = new BufferedReader(new FileReader("./motd.txt"))) {
             reader.lines().forEach(builder::append);
-        } catch (Exception exception) {
+        } catch (Exception ignored) {
 
         }
 
@@ -122,7 +132,13 @@ public class Settings {
      * Constructor for new settings singleton.
      */
     private Settings() {
-        try (InputStream input = Punk.class.getClassLoader().getResourceAsStream("config.properties")) {
+        String props = "config.properties";
+        File f = new File("./config.properties");
+        if(f.exists() && !f.isDirectory()) {
+            props = "./config.properties";
+        }
+
+        try (InputStream input = Punk.class.getClassLoader().getResourceAsStream(props)) {
             properties.load(input);
         } catch (IOException e) {
             System.err.println(e.getMessage());

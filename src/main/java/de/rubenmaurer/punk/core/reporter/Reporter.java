@@ -55,7 +55,7 @@ public class Reporter extends AbstractActor {
         String color = ANSI_BLUE;
         String msgType;
 
-        if (type == Report.Type.ONLINE) {
+        if (type == Report.Type.ONLINE || type == Report.Type.SUCCESS) {
             color = ANSI_GREEN;
         }
 

@@ -1,7 +1,12 @@
 //System
 startUp(version) ::= "--- punkIRC v.<version> ---"
 startSystem(system) ::= "--- Starting <system> ---"
-readyMessage() ::= "--- punkIRC is ready! ---"
+readyMessage() ::= "--- Waiting for connections ---"
+addressCheckMessage() ::= "--- Checking address ---"
+addressInUseMessage() ::= "Cannot start server due address is already in use"
+addressAvailableMessage() ::= "Address available!"
+shutdownMessage() ::= "--- Shutting down ---"
+quoteMessage() ::= "--- Today's quote ---"
 
 //Util strings
 quitMessage() ::= "Client Quit"
@@ -13,6 +18,7 @@ pong() ::= "001_PONG_MESSAGE"
 motd() ::= "002_MOTD_MESSAGE"
 workerDone() ::= "003_WORKER_DONE_PARSE"
 subSysReady() ::= "004_SUBSYSTEM_READY"
+terminate() ::= "005_TERMINATE_SYSTEM"
 
 //Replys
 RPL_WELCOME(nick, user, host) ::= ":<host> 001 <nick> :Welcome to the Internet Relay Network <nick>!<user>@<host>"

@@ -25,6 +25,7 @@ public class Template {
 
     /**
      * Constructor for a new template.
+     *
      * @param template the template to load
      */
     private Template(ST template) {

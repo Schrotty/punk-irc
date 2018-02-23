@@ -21,11 +21,6 @@ import de.rubenmaurer.punk.util.Template;
 public class PunkServer extends AbstractActor {
 
     /**
-     * The used connection manager actor.
-     */
-    private static ActorRef connectionManager;
-
-    /**
      * The used channel manager actor.
      */
     private static ActorRef channelManager;
@@ -70,19 +65,12 @@ public class PunkServer extends AbstractActor {
         Props conProps = ConnectionManager.props(Tcp.get(getContext().getSystem()).manager());
 
         Guardian.reporter().tell(Report.create(Report.Type.ONLINE), self());
-        connectionManager = context().actorOf(conProps, "connection-manager");
+
+        context().actorOf(conProps, "connection-manager");
         channelManager = context().actorOf(ChannelManager.props(),"channel-manager");
         parser = context().actorOf(ParserManager.props(), "parser-manager");
 
         parser.tell(Template.get("parserWorkStart").toString(), self());
-    }
-
-    /**
-     * Gets fired after stop.
-     */
-    @Override
-    public void postStop() {
-
     }
 
     /**

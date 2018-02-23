@@ -17,6 +17,7 @@ public class Report {
         ERROR,
         ONLINE,
         NONE,
+        SUCCESS,
         OFFLINE
     }
 

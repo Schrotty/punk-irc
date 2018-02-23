@@ -108,7 +108,7 @@ public class ConnectionHandler extends AbstractActor {
      *
      * @param realname the new real-name
      */
-    void setRealname(String realname) {
+    private void setRealname(String realname) {
         if(this.realname.isEmpty()) {
             this.realname = realname;
             tryLogin();

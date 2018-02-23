@@ -7,6 +7,7 @@ import de.rubenmaurer.punk.Punk;
 import de.rubenmaurer.punk.core.irc.PunkServer;
 import de.rubenmaurer.punk.core.reporter.Report;
 import de.rubenmaurer.punk.core.reporter.Reporter;
+import de.rubenmaurer.punk.util.Network;
 import de.rubenmaurer.punk.util.Template;
 
 /**
@@ -44,7 +45,6 @@ public class Guardian extends AbstractActor {
     private void systemReady() {
         reporter().tell(Report.create(Report.Type.NONE, ""), self());
         reporter().tell(Report.create(Report.Type.INFO, Template.get("readyMessage").toString()), self());
-        reporter().tell(Report.create(Report.Type.NONE, ""), self());
     }
 
     /**
@@ -58,12 +58,31 @@ public class Guardian extends AbstractActor {
                 Punk.class.getPackage().getImplementationVersion())), self());
         reporter.tell(Report.create(Report.Type.NONE, ""), self());
 
-        reporter().tell(Report.create(Report.Type.INFO, Template.get("startSystem").single("system", "guardian actor")), self());
-        reporter().tell(Report.create(Report.Type.ONLINE), self());
-        reporter().tell(Report.create(Report.Type.NONE, ""), self());
+        reporter().tell(Report.create(Report.Type.INFO, Template.get("addressCheckMessage").toString()), self());
 
-        reporter().tell(Report.create(Report.Type.INFO, Template.get("startSystem").single("system", "system/ manager actors")), self());
-        context().actorOf(PunkServer.props(), "punk-irc-server");
+        if (Network.addressIsAvailable()) {
+            reporter().tell(Report.create(Report.Type.SUCCESS, Template.get("addressAvailableMessage").toString()), self());
+            reporter.tell(Report.create(Report.Type.NONE, ""), self());
+
+            reporter().tell(Report.create(Report.Type.INFO, Template.get("startSystem").single("system", "guardian actor")), self());
+            reporter().tell(Report.create(Report.Type.ONLINE), self());
+            reporter().tell(Report.create(Report.Type.NONE, ""), self());
+
+            reporter().tell(Report.create(Report.Type.INFO, Template.get("startSystem").single("system", "system/ manager actors")), self());
+            context().actorOf(PunkServer.props(), "punk-irc-server");
+            return;
+        }
+
+        reporter().tell(Report.create(Report.Type.ERROR, Template.get("addressInUseMessage").toString()), self());
+        reporter.tell(Report.create(Report.Type.NONE, ""), self());
+
+        terminate();
+    }
+
+    private void terminate() {
+        reporter().tell(Report.create(Report.Type.INFO, Template.get("shutdownMessage").toString()), self());
+
+        getContext().system().terminate();
     }
 
     /**
