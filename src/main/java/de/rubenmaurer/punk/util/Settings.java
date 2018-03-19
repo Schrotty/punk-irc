@@ -4,7 +4,6 @@ import de.rubenmaurer.punk.Punk;
 
 import java.io.*;
 import java.util.Properties;
-import java.util.Random;
 
 /**
  * Helper for accessing properties.
@@ -26,12 +25,30 @@ public class Settings {
     private static Settings self = new Settings();
 
     /**
+     * Get the host specified in properties.
+     *
+     * @return the host
+     */
+    public static String host() {
+        return getInstance().get("host");
+    }
+
+    /**
      * Get the port specified in properties.
      *
      * @return the port
      */
     public static int port() {
         return Integer.parseInt(getInstance().get("defaultPort"));
+    }
+
+    /**
+     * Get debug mode.
+     *
+     * @return debug
+     */
+    public static boolean debug() {
+        return Boolean.parseBoolean(getInstance().get("debug"));
     }
 
     /**
@@ -115,7 +132,7 @@ public class Settings {
 
         }
 
-        if (builder.toString().isEmpty()) return Notification.get(Notification.Error.ERR_NOMOTD);
+        if (builder.toString().isEmpty()) return Notification.errNoMessageOfTheDay();
         return builder.toString();
     }
 

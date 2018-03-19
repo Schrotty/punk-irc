@@ -3,7 +3,6 @@ package de.rubenmaurer.punk.core.reporter;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import de.rubenmaurer.punk.core.irc.PunkServer;
 
 /**
  * Actor for printing system messages.

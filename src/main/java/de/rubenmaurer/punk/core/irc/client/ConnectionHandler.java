@@ -6,6 +6,7 @@ import akka.actor.Props;
 import akka.io.Tcp;
 import akka.io.TcpMessage;
 import akka.util.ByteString;
+import de.rubenmaurer.punk.core.Guardian;
 import de.rubenmaurer.punk.core.irc.PunkServer;
 import de.rubenmaurer.punk.core.irc.channel.ChannelManager;
 import de.rubenmaurer.punk.core.irc.messages.*;
@@ -100,7 +101,7 @@ public class ConnectionHandler extends AbstractActor {
             return;
         }
 
-        write(Notification.get(Notification.Error.ERR_NICKNAMEINUSE, nickname));
+        write(Notification.errNicknameInUse(nickname));
     }
 
     /**
@@ -115,7 +116,7 @@ public class ConnectionHandler extends AbstractActor {
             return;
         }
 
-        write(Notification.get(Notification.Error.ERR_ALREADYREGISTRED, Settings.hostname()));
+        write(Notification.errAlreadyRegistered(Settings.hostname()));
     }
 
     /**
@@ -124,11 +125,11 @@ public class ConnectionHandler extends AbstractActor {
     private void tryLogin() {
         if (!isOnline() && (!nickname.isEmpty() && !realname.isEmpty())) {
             write(Notification.get(Notification.Reply.RPL_WELCOME,
-                    new String[] { nickname, realname, hostname }));
+                    new String[] { nickname, realname, Settings.hostname() }));
 
-            write(Notification.get(Notification.Reply.RPL_YOURHOST));
-            write(Notification.get(Notification.Reply.RPL_CREATED));
-            write(Notification.get(Notification.Reply.RPL_MYINFO));
+            write(Notification.get(Notification.Reply.RPL_YOURHOST, new String[] { nickname }));
+            write(Notification.get(Notification.Reply.RPL_CREATED, new String[] { nickname }));
+            write(Notification.get(Notification.Reply.RPL_MYINFO, new String[] { nickname }));
 
             ConnectionManager.connections.put(nickname, self());
             online = true;
@@ -169,7 +170,7 @@ public class ConnectionHandler extends AbstractActor {
         }
 
         if (chat.getType().equals(Chat.Type.PRIVMSG))
-            write(Notification.get(Notification.Error.ERR_NOSUCHNICK, new String[]{chat.getTarget(), hostname}));
+            write(Notification.errNoSuchNick(hostname, chat.getTarget()));
     }
 
     /**
@@ -180,7 +181,7 @@ public class ConnectionHandler extends AbstractActor {
     private void logout(Logout message) {
         ConnectionManager.connections.remove(nickname);
 
-        write(Notification.get(Notification.Error.ERROR, new String[]{ message.getMessage(), hostname }));
+        write(Notification.errError(hostname, message.getMessage()));
         getContext().stop(getSelf());
     }
 
@@ -190,6 +191,7 @@ public class ConnectionHandler extends AbstractActor {
      * @param message the message to write
      */
     private void write(String message) {
+        if (Settings.debug()) Guardian.reporter().tell(Report.create(Report.Type.INFO, message), self());
         remote.tell(TcpMessage.write(ByteString.fromString(message.intern() + '\r' + '\n'), TcpMessage.noAck()), getSelf());
     }
 

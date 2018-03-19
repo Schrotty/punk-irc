@@ -7,7 +7,6 @@ import de.rubenmaurer.punk.core.irc.messages.MessageBuilder;
 import de.rubenmaurer.punk.core.irc.messages.impl.Change;
 import de.rubenmaurer.punk.core.irc.messages.impl.Chat;
 import de.rubenmaurer.punk.util.Notification;
-import de.rubenmaurer.punk.util.Settings;
 import de.rubenmaurer.punk.util.Template;
 import org.apache.commons.lang3.StringUtils;
 
@@ -50,8 +49,7 @@ public class CommandListener extends IRCBaseListener {
     public void enterChatLine(IRCParser.ChatLineContext ctx) {
         if (ctx.commands().size() == 0) {
             if (StringUtils.isAllUpperCase(ctx.WORD(0).getText())) {
-                connection.tell(Notification.get(Notification.Error.ERR_UNKNOWNCOMMAND,
-                        new String[]{Settings.hostname(), ctx.WORD(0).getText() }), worker);
+                connection.tell(Notification.errUnknownCommand(ctx.WORD(0).getText()), worker);
             }
         }
     }
