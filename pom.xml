@@ -38,8 +38,8 @@
                 <version>2.6</version>
                 <executions>
                     <execution>
-                        <id>copy-resources</id>
-                        <phase>validate</phase>
+                        <id>copy-config</id>
+                        <phase>package</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
@@ -47,8 +47,10 @@
                             <outputDirectory>${basedir}/target/punkIRC</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>resources</directory>
-                                    <filtering>true</filtering>
+                                    <directory>src/main/resources</directory>
+                                    <includes>
+                                        <include>*.properties</include>
+                                    </includes>
                                 </resource>
                             </resources>
                         </configuration>

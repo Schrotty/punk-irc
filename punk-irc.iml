@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="Python" name="Python">
+      <configuration sdkName="" />
+    </facet>
+  </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
@@ -7,10 +12,12 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/target/generated-sources/antlr4" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/antlr4" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="akka-reporter-1.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: com.typesafe.akka:akka-actor_2.12:2.5.6" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.12.3" level="project" />
     <orderEntry type="library" name="Maven: com.typesafe:config:1.3.1" level="project" />

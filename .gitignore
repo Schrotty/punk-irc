@@ -9,3 +9,9 @@ alltests
 venv/
 /punk-irc.iml
 *.pyc
+<<<<<<< HEAD
+=======
+src/test/__pycache__/conftest.cpython-36-PYTEST.pyc
+/src/test/
+src/test/.coverage
+>>>>>>> 78c0bc3361244bff0f66cbccec6f88e6c95d131c

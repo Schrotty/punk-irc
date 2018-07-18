@@ -85,9 +85,8 @@ public class ConnectionManager extends AbstractActor {
             Guardian.reporter().tell(Report.create(Report.Type.ERROR, exception.getMessage()), self());
         }
 
-        sender().tell(MessageBuilder.whoIs("", "", Notification.get(Notification.Error.ERR_NOSUCHNICK, new String[]{
-                Settings.hostname(), message.getNickname()
-        })), self());
+        sender().tell(MessageBuilder.whoIs("", "",
+                Notification.errNoSuchNick(Settings.hostname(), message.getNickname())), self());
     }
 
     /**
@@ -98,7 +97,7 @@ public class ConnectionManager extends AbstractActor {
         Guardian.reporter().tell(Report.create(Report.Type.ONLINE), self());
 
         final ActorRef tcp = Tcp.get(getContext().getSystem()).manager();
-        tcp.tell(TcpMessage.bind(getSelf(), new InetSocketAddress("localhost", Settings.port()), 100), getSelf());
+        tcp.tell(TcpMessage.bind(getSelf(), new InetSocketAddress(Settings.host(), Settings.port()), 100), getSelf());
     }
 
     /**

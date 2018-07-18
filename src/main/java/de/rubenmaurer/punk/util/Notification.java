@@ -11,18 +11,6 @@ package de.rubenmaurer.punk.util;
 public class Notification {
 
     /**
-     * Error types
-     */
-    public enum Error {
-        ERR_UNKNOWNCOMMAND,
-        ERR_NICKNAMEINUSE,
-        ERR_ALREADYREGISTRED,
-        ERR_NOSUCHNICK,
-        ERROR,
-        ERR_NOMOTD
-    }
-
-    /**
      * Reply types
      */
     public enum Reply {
@@ -43,61 +31,39 @@ public class Notification {
     private Notification() {
     }
 
-    /**
-     * Get a reply string filled with multiple values.
-     *
-     * @param type the reply type
-     * @param values the values
-     * @return the reply string
-     */
-    public static String get(Error type, String[] values) {
-        if (type.equals(Error.ERR_UNKNOWNCOMMAND))
-            return Template.get("ERR_UNKNOWNCOMMAND").multiple(
-                    new String[] {"host", "command"}, values);
-
-        if (type.equals(Error.ERR_NICKNAMEINUSE))
-            return Template.get("ERR_NICKNAMEINUSE").multiple(
-                    new String[] { "nick", "host" },
-                    new String[] { values[0], Settings.hostname() });
-
-        if (type.equals(Error.ERR_ALREADYREGISTRED))
-            return Template.get("ERR_ALREADYREGISTRED").single("host", values[0]);
-
-        if (type.equals(Error.ERROR))
-            return Template.get("ERROR").multiple(
-                    new String[] { "host", "message" },
-                    new String[] { values[1], values[0] });
-
-        if (type.equals(Error.ERR_NOSUCHNICK))
-            return Template.get("ERR_NOSUCHNICK").multiple(
-                    new String[]{ "host", "nick" },
-                    new String[]{ values[1], values[0] });
-
-        if (type.equals(Error.ERR_NOMOTD))
-            return Template.get("ERR_NOMOTD").single("host", Settings.hostname());
-
-        return "";
+    public static String errUnknownCommand(String command) {
+        return Template.get("ERR_UNKNOWNCOMMAND").multiple(
+            new String[] {"host", "command"},
+            new String[] {Settings.hostname(), command }
+        );
     }
 
-    /**
-     * Get a reply string filled with a single value.
-     *
-     * @param type reply type
-     * @param value the value
-     * @return the reply string
-     */
-    public static String get(Error type, String value) {
-        return get(type, new String[] { value });
+    public static String errNicknameInUse(String nickname) {
+        return Template.get("ERR_NICKNAMEINUSE").multiple(
+            new String[] { "nick", "host" },
+            new String[] { nickname, Settings.hostname() }
+        );
     }
 
-    /**
-     * Get a reply string filled with a single value.
-     *
-     * @param type reply type
-     * @return the reply string
-     */
-    public static String get(Error type) {
-        return get(type, new String[] { "" });
+    public static String errAlreadyRegistered(String hostname) {
+        return Template.get("ERR_ALREADYREGISTRED").single("host", hostname);
+    }
+
+    public static String errNoSuchNick(String hostname, String nickname) {
+        return Template.get("ERR_NOSUCHNICK").multiple(
+            new String[]{ "host", "nick" },
+            new String[]{ hostname, nickname }
+        );
+    }
+
+    public static String errError(String hostname, String message) {
+        return Template.get("ERROR").multiple(
+                new String[] { "host", "message" },
+                new String[] { hostname, message });
+    }
+
+    public static String errNoMessageOfTheDay() {
+        return Template.get("ERR_NOMOTD").single("host", Settings.hostname());
     }
 
     /**
@@ -119,18 +85,18 @@ public class Notification {
 
         if (type.equals(Reply.RPL_YOURHOST))
             return Template.get("RPL_YOURHOST").multiple(
-                    new String[] { "host", "servername", "version" },
-                    new String[] { Settings.hostname(), Settings.servername(), Settings.version() });
+                    new String[] { "host", "servername", "version", "nick" },
+                    new String[] { Settings.hostname(), Settings.servername(), Settings.version(), values[0] });
 
         if (type.equals(Reply.RPL_CREATED))
             return Template.get("RPL_CREATED").multiple(
-                    new String[] { "host", "date" },
-                    new String[] { Settings.hostname(), Settings.buildDate() });
+                    new String[] { "host", "date", "nick" },
+                    new String[] { Settings.hostname(), Settings.buildDate(), values[0] });
 
         if (type.equals(Reply.RPL_MYINFO))
             return Template.get("RPL_MYINFO").multiple(
-                    new String[] { "host", "servername", "version" },
-                    new String[] { Settings.hostname(), Settings.servername(), Settings.version() });
+                    new String[] { "host", "servername", "version", "nick" },
+                    new String[] { Settings.hostname(), Settings.servername(), Settings.version(), values[0] });
 
         if (type.equals(Reply.RPL_PRIVMSG))
             return Template.get("RPL_PRIVMSG").multiple(

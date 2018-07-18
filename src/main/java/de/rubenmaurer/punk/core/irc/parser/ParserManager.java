@@ -103,9 +103,9 @@ public class ParserManager extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(ParseMessage.class, this::delegate)
+                .matchEquals(Template.get("subSysReady").toString(), s -> workerRunning())
                 .matchEquals(Template.get("parserWorkStart").toString(), s -> startWorker())
                 .match(String.class, s -> workerPlan.replace(s, false))
-                .matchEquals(Template.get("subSysReady").toString(), s -> workerRunning())
                 .build();
     }
 }

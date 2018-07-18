@@ -1,7 +1,14 @@
 //System
 startUp(version) ::= "--- punkIRC v.<version> ---"
 startSystem(system) ::= "--- Starting <system> ---"
-readyMessage() ::= "--- punkIRC is ready! ---"
+readyMessage() ::= "--- Waiting for connections ---"
+addressCheckMessage() ::= "--- Checking address ---"
+addressInUseMessage() ::= "Cannot start server due address is already in use"
+addressAvailableMessage() ::= "Address available!"
+addressNotAvailableMessage(address) ::= "Address '<address>' not available!"
+addressesAvailable(addresses) ::= "Available IPv4 addresses: <addresses>"
+shutdownMessage() ::= "--- Shutting down ---"
+quoteMessage() ::= "--- Today's quote ---"
 
 //Util strings
 quitMessage() ::= "Client Quit"
@@ -13,12 +20,16 @@ pong() ::= "001_PONG_MESSAGE"
 motd() ::= "002_MOTD_MESSAGE"
 workerDone() ::= "003_WORKER_DONE_PARSE"
 subSysReady() ::= "004_SUBSYSTEM_READY"
+terminate() ::= "005_TERMINATE_SYSTEM"
+addressInUse() ::= "006_ADDRESS_ALREADY_IN_USE"
+addressNotAvailable() ::= "007_ADDRESS_NOT_AVAILABLE"
+addressAvailable() ::= "008_ADDRESS_AVAILABLE"
 
-//Replys
+//Replies
 RPL_WELCOME(nick, user, host) ::= ":<host> 001 <nick> :Welcome to the Internet Relay Network <nick>!<user>@<host>"
-RPL_YOURHOST(host, servername, version) ::= ":<host> 002 :Your host is <servername>, running version <version>"
-RPL_CREATED(host, date) ::= ":<host> 003 :This server was created <date>"
-RPL_MYINFO(host, servername, version) ::= ":<host> 004 : <servername> <version> ao mtov"
+RPL_YOURHOST(host, servername, version, nick) ::= ":<host> 002 <nick> :Your host is <servername>, running version <version>"
+RPL_CREATED(host, date, nick) ::= ":<host> 003 <nick> :This server was created <date>"
+RPL_MYINFO(host, servername, version, nick) ::= ":<host> 004 <nick> <servername> <version> ao mtov"
 RPL_WHOISUSER(nick, user, host, real) ::= ":<host> 311 <nick> <user> <host> * :<real>"
 RPL_WHOISSERVER(nick, server, host, info) ::= ":<host> 312 <nick> <server> :<info>"
 RPL_TOPIC(server, nick, channel, topic) ::= ":<server> 332 <nick> <channel> :<topic>"
@@ -37,4 +48,4 @@ ERR_NICKNAMEINUSE(nick, host) ::= ":<host> 433 * <nick> :Nickname is already in 
 ERR_ALREADYREGISTRED(host)  ::= ":<host> 462 :Unauthorized command (already registered)"
 ERR_NOSUCHNICK(host, nick) ::= ":<host> 401 <nick> :No such nick/ channel"
 ERR_NOMOTD(host) ::= ":<host> 422 :MOTD File is missing"
-ERROR(host, message) ::= "Closing Link: <host> (<message>)"
+ERROR(host, message) ::= "ERROR Closing Link: <host> (<message>)"

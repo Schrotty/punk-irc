@@ -3,7 +3,6 @@ package de.rubenmaurer.punk.core.reporter;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import de.rubenmaurer.punk.core.irc.PunkServer;
 
 /**
  * Actor for printing system messages.
@@ -55,7 +54,7 @@ public class Reporter extends AbstractActor {
         String color = ANSI_BLUE;
         String msgType;
 
-        if (type == Report.Type.ONLINE) {
+        if (type == Report.Type.ONLINE || type == Report.Type.SUCCESS) {
             color = ANSI_GREEN;
         }
 

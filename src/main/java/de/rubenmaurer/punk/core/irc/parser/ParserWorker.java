@@ -1,7 +1,6 @@
 package de.rubenmaurer.punk.core.irc.parser;
 
 import akka.actor.AbstractActor;
-import akka.actor.ActorRef;
 import akka.actor.Props;
 import de.rubenmaurer.punk.IRCLexer;
 import de.rubenmaurer.punk.IRCListener;
